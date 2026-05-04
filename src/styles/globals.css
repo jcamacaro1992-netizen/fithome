@@ -1,0 +1,180 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #0C0D0F;
+    --bg2: #131416;
+    --card: #1A1B1F;
+    --card2: #22242A;
+    --border: rgba(255,255,255,0.055);
+    --border2: rgba(255,255,255,0.10);
+    --text: #EEEEF0;
+    --text2: #B0B2BA;
+    --muted: rgba(176,178,186,0.55);
+    --faint: rgba(176,178,186,0.25);
+    --accent: #C6F135;
+    --accent-dim: rgba(198,241,53,0.12);
+    --accent-glow: rgba(198,241,53,0.25);
+    --orange: #FF6B2B;
+    --blue: #4C9EFF;
+    --green: #1FD16A;
+    --red: #FF4545;
+    --purple: #A78BFA;
+    --yellow: #F5C518;
+    --r: 12px;
+    --r2: 18px;
+    --r3: 24px;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body, #root {
+    height: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100%;
+    position: relative;
+  }
+}
+
+@layer components {
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .screen {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    scrollbar-width: none;
+  }
+
+  .screen::-webkit-scrollbar {
+    display: none;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+  }
+
+  .card2 {
+    background: var(--card2);
+    border: 1px solid var(--border2);
+    border-radius: var(--r);
+  }
+
+  .btn-accent {
+    background: var(--accent);
+    color: #0C0D0F;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    border-radius: var(--r);
+    padding: 0.875rem 1.5rem;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    width: 100%;
+  }
+
+  .btn-accent:active {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text2);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: var(--r);
+    padding: 0.875rem 1.5rem;
+    border: 1px solid var(--border2);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    width: 100%;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+  }
+
+  .input-field {
+    background: var(--card2);
+    border: 1px solid var(--border2);
+    border-radius: var(--r);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 1rem;
+    padding: 0.875rem 1rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .input-field::placeholder {
+    color: var(--muted);
+  }
+
+  .input-field:focus {
+    border-color: var(--accent);
+  }
+
+  /* Badge color variants */
+  .badge-pecho    { background: rgba(255,107,43,0.15); color: var(--orange); }
+  .badge-hombros  { background: rgba(76,158,255,0.15); color: var(--blue); }
+  .badge-tríceps  { background: rgba(198,241,53,0.12); color: var(--accent); }
+  .badge-bíceps   { background: rgba(198,241,53,0.12); color: var(--accent); }
+  .badge-espalda  { background: rgba(76,158,255,0.15); color: var(--blue); }
+  .badge-piernas  { background: rgba(245,197,24,0.15); color: var(--yellow); }
+  .badge-glúteos  { background: rgba(245,197,24,0.15); color: var(--yellow); }
+  .badge-core     { background: rgba(198,241,53,0.12); color: var(--accent); }
+  .badge-fuerza   { background: rgba(255,107,43,0.15); color: var(--orange); }
+  .badge-global   { background: rgba(255,107,43,0.15); color: var(--orange); }
+  .badge-movilidad   { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .badge-columna     { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .badge-flexibilidad { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .badge-recuperación { background: rgba(31,209,106,0.12); color: var(--green); }
+}
