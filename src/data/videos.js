@@ -39,7 +39,7 @@ export const VIDEO_DATA = {
     query: 'sergio orduz curl biceps barra correcto',
     candidates: ['ykJmrZ5v0Oo', 'XE_BHo98r5Q', 'LY1V6UbRHFM']
   },
-  'Curl martillo mancuernas': {
+  'Curl martillo con mancuernas': {
     query: 'sergio orduz curl martillo mancuernas biceps',
     candidates: ['zC3nLlEvin4', 'TwD-YGVP4Bk', 'av7-8CzC9Sw']
   },
@@ -74,6 +74,34 @@ export const VIDEO_DATA = {
   'Ab rollout con barra': {
     query: 'sergio orduz ab rollout rueda abdominal barra',
     candidates: ['p7j_fMaIAVo', 'OfBKBBGwx_o', 'AlFGHYmME14']
+  },
+  'Apertura con mancuernas en suelo': {
+    query: 'sergio orduz apertura mancuernas suelo pecho ejercicio',
+    candidates: ['UWBiHekEpHQ', 'eoq_HBwJa9Q', 'mBxRiMQ6vXw']
+  },
+  'Press francés en suelo con barra': {
+    query: 'sergio orduz press frances suelo barra triceps',
+    candidates: ['d_DqMEIIGFQ', 'SNBY5wEi7Zc', 'OtaXJONZ5Ro']
+  },
+  'Extensión de tríceps sobre cabeza': {
+    query: 'sergio orduz extension triceps sobre cabeza mancuerna',
+    candidates: ['_gsUck4dMGc', 'mBkGn1MidVk', 'BX9e9W_vHzE']
+  },
+  'Peso muerto rumano con barra': {
+    query: 'sergio orduz peso muerto rumano barra isquiotibiales',
+    candidates: ['7iqOFbWYPEQ', 'JCXZnRoRPqo', '_oyxgtHhneo']
+  },
+  'Encogimientos con barra': {
+    query: 'sergio orduz encogimientos barra trapecio hombros',
+    candidates: ['e0nkZzVEq3k', 'kRm3iSxuD4w', 'rWB2MsYmyNA']
+  },
+  'Curl de muñeca con barra': {
+    query: 'sergio orduz curl muneca barra antebrazos',
+    candidates: ['IWGHiZdRFQs', 'vLVJxDZQ5HI', 'qvqNNF9QHFY']
+  },
+  'Extensión de muñeca con barra': {
+    query: 'sergio orduz extension muneca barra antebrazos',
+    candidates: ['kMNLhyFBn8E', 'c_9mxezWbNA', 'ej9gq0bYjWs']
   },
   'Sentadilla frontal con barra': {
     query: 'sergio orduz sentadilla frontal barra tecnica',

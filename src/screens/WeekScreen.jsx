@@ -4,12 +4,10 @@ import { DAYS, getBadgeClass } from '../data/exercises'
 import { useNavigate } from 'react-router-dom'
 
 const FOCUS_COLORS = {
-  'Empuje superior':   '#F97316',
-  'Tirón + Bíceps':    '#4589FF',
-  'Piernas + Glúteos': '#F59E0B',
-  'Movilidad activa':  '#A78BFA',
-  'Fuerza total':      '#22C55E',
-  'Descanso total':    '#A78BFA',
+  'Pecho · Tríceps':              '#F97316',
+  'Espalda · Bíceps':             '#4589FF',
+  'Piernas · Trapecio · Antebrazos': '#F59E0B',
+  'Descanso total':               '#A78BFA',
 }
 
 function ProgressArc({ value, size = 40, stroke = 3 }) {
