@@ -221,7 +221,7 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
   const { videoId, status: videoStatus } = useAutoVideo(exercise.name)
   const noVideo = videoStatus === 'none' || (!videoId && videoStatus !== 'loading' && videoStatus !== 'searching')
   const { svgs, loading: illuLoading, apiKey } = useIllustrations(user, exercise.name, expanded && noVideo)
-  const { sets, adj, toggleDone, doneSets, allDone, best1RM, isTimed, isBodyweight } = useSetTracking(exercise.name, exercise.sets, dayIdx)
+  const { count, reps, weight, done: done_sets, adj, markSet, allDone, best1RM, isTimed, isBodyweight } = useSetTracking(exercise.name, exercise.sets, dayIdx)
 
   const accent = BADGE_COLOR[exercise.badge] ?? 'var(--accent)'
   const isVideoReady = videoStatus === 'ready' && videoId
@@ -232,11 +232,10 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
   }
 
   function handleSetToggle(i) {
-    const wasDone = sets[i].done
-    toggleDone(i)
-    const willAllBeDone = sets.every((s, idx) => idx === i ? !wasDone : s.done)
-    if (willAllBeDone && !done) onToggle(dayIdx, exIdx)
-    else if (!willAllBeDone && done) onToggle(dayIdx, exIdx)
+    markSet(i)
+    const willAllDone = done_sets === i + 1 ? i >= count : i + 1 >= count
+    if (willAllDone && !done) onToggle(dayIdx, exIdx)
+    else if (!willAllDone && done) onToggle(dayIdx, exIdx)
   }
 
   return (
@@ -299,7 +298,7 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
             <span style={{ fontSize: '0.73rem', color: 'var(--muted)', fontFamily: "'Barlow Condensed', sans-serif" }}>
               {exercise.sets}
             </span>
-            {doneSets > 0 && (
+            {done_sets > 0 && (
               <span style={{
                 fontSize: '0.68rem',
                 fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
@@ -307,7 +306,7 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
                 background: allDone ? 'rgba(34,197,94,0.12)' : 'var(--accent-dim)',
                 padding: '1px 6px', borderRadius: '5px'
               }}>
-                {doneSets}/{sets.length} series
+                {done_sets}/{count} series
               </span>
             )}
           </div>
@@ -348,14 +347,15 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
           </div>
 
           {/* ── SET TRACKER ── */}
-          <div style={{ padding: '14px 14px 4px', borderTop: '1px solid var(--border)' }}>
+          <div style={{ padding: '14px 14px 16px', borderTop: '1px solid var(--border)' }}>
+            {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
               <span style={{
                 fontSize: '0.63rem', color: 'var(--muted)',
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase'
               }}>
-                Series
+                Series · {isTimed ? 'Tiempo' : 'Reps + Peso'}
               </span>
               {best1RM > 0 && (
                 <span style={{
@@ -370,17 +370,64 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
               )}
             </div>
 
-            {sets.map((set, i) => (
-              <SetRow
-                key={i}
-                num={i + 1}
-                set={set}
-                isTimed={isTimed}
-                isBodyweight={isBodyweight}
-                onAdj={(field, delta) => adj(i, field, delta)}
-                onToggle={() => handleSetToggle(i)}
+            {/* Single shared reps + weight blocks */}
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
+              <SetBlock
+                value={reps}
+                label={isTimed ? 'seg' : 'reps'}
+                onDec={() => adj('reps', -1)}
+                onInc={() => adj('reps', +1)}
+                done={false}
               />
-            ))}
+              {!isBodyweight && (
+                <SetBlock
+                  value={weight}
+                  label="kg"
+                  onDec={() => adj('weight', -1)}
+                  onInc={() => adj('weight', +1)}
+                  done={false}
+                />
+              )}
+            </div>
+
+            {/* Set circles */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{
+                fontSize: '0.63rem', color: 'var(--muted)',
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase',
+                marginRight: '2px'
+              }}>
+                {done_sets}/{count}
+              </span>
+              {Array.from({ length: count }, (_, i) => {
+                const completed = i < done_sets
+                return (
+                  <button
+                    key={i}
+                    onClick={() => handleSetToggle(i)}
+                    style={{
+                      width: 36, height: 36, borderRadius: '50%',
+                      border: completed ? '2px solid #22C55E' : '2px solid var(--border2)',
+                      background: completed ? '#22C55E' : 'var(--card2)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', transition: 'all 0.18s', flexShrink: 0
+                    }}
+                  >
+                    {completed ? (
+                      <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+                        <path d="M1 5l3.5 3.5L12 1" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    ) : (
+                      <span style={{
+                        fontFamily: "'Barlow Condensed', sans-serif",
+                        fontWeight: 800, fontSize: '0.8rem', color: 'var(--muted)'
+                      }}>{i + 1}</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Video / Illustrations */}
