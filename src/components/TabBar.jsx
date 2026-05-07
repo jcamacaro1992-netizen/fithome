@@ -7,11 +7,11 @@ const TABS = [
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
         <rect x="3" y="5" width="16" height="14" rx="3"
-          stroke={active ? '#0C0D0F' : '#B0B2BA'} strokeWidth="1.7"/>
+          stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.7"/>
         <path d="M7 3v4M15 3v4M3 10h16"
-          stroke={active ? '#0C0D0F' : '#B0B2BA'} strokeWidth="1.7" strokeLinecap="round"/>
+          stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.7" strokeLinecap="round"/>
         <rect x="7" y="13" width="3" height="3" rx="1"
-          fill={active ? '#0C0D0F' : '#B0B2BA'}/>
+          fill={active ? '#fff' : 'rgba(141,163,190,0.7)'}/>
       </svg>
     )
   },
@@ -21,7 +21,7 @@ const TABS = [
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
         <path d="M4 6h14M4 11h14M4 16h9"
-          stroke={active ? '#0C0D0F' : '#B0B2BA'} strokeWidth="1.7" strokeLinecap="round"/>
+          stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.7" strokeLinecap="round"/>
       </svg>
     )
   },
@@ -31,9 +31,9 @@ const TABS = [
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
         <circle cx="11" cy="11" r="3"
-          stroke={active ? '#0C0D0F' : '#B0B2BA'} strokeWidth="1.7"/>
+          stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.7"/>
         <path d="M11 3v2M11 17v2M3 11h2M17 11h2M5.64 5.64l1.42 1.42M14.94 14.94l1.42 1.42M5.64 16.36l1.42-1.42M14.94 7.06l1.42-1.42"
-          stroke={active ? '#0C0D0F' : '#B0B2BA'} strokeWidth="1.7" strokeLinecap="round"/>
+          stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.7" strokeLinecap="round"/>
       </svg>
     )
   }
@@ -61,19 +61,16 @@ export default function TabBar() {
               display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center',
               gap: '4px', padding: '10px 8px',
-              background: 'transparent', border: 'none', cursor: 'pointer',
-              position: 'relative'
+              background: 'transparent', border: 'none',
+              cursor: 'pointer', position: 'relative'
             }}
           >
-            {/* Active pill behind icon */}
             {active && (
               <div style={{
-                position: 'absolute',
-                top: '8px',
-                width: 42, height: 30,
+                position: 'absolute', top: '7px',
+                width: 44, height: 32,
                 borderRadius: '10px',
                 background: 'var(--accent)',
-                transition: 'all 0.2s'
               }} />
             )}
             <div style={{ position: 'relative', zIndex: 1 }}>
@@ -82,11 +79,9 @@ export default function TabBar() {
             <span style={{
               fontSize: '0.62rem',
               fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 700,
-              letterSpacing: '0.05em',
-              textTransform: 'uppercase',
-              color: active ? 'var(--accent)' : 'var(--muted)',
-              position: 'relative', zIndex: 1
+              fontWeight: 700, letterSpacing: '0.05em',
+              textTransform: 'uppercase', position: 'relative', zIndex: 1,
+              color: active ? 'var(--accent)' : 'var(--muted)'
             }}>
               {tab.label}
             </span>

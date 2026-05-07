@@ -4,11 +4,11 @@ import { DAYS, getBadgeClass } from '../data/exercises'
 import { useNavigate } from 'react-router-dom'
 
 const FOCUS_COLORS = {
-  'Empuje superior':   '#FF6B2B',
-  'Tirón + Bíceps':    '#4C9EFF',
-  'Piernas + Glúteos': '#F5C518',
+  'Empuje superior':   '#F97316',
+  'Tirón + Bíceps':    '#4589FF',
+  'Piernas + Glúteos': '#F59E0B',
   'Movilidad activa':  '#A78BFA',
-  'Fuerza total':      '#C6F135',
+  'Fuerza total':      '#22C55E',
   'Descanso total':    '#A78BFA',
 }
 

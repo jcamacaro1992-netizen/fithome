@@ -14,8 +14,8 @@ export default defineConfig({
         description: 'Tu rutina de entrenamiento en casa',
         start_url: '/',
         display: 'standalone',
-        background_color: '#0C0D0F',
-        theme_color: '#0C0D0F',
+        background_color: '#080D18',
+        theme_color: '#080D18',
         orientation: 'portrait',
         icons: [
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },

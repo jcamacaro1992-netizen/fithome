@@ -60,8 +60,8 @@ export default function LoginScreen() {
         }}>
           <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
             <path d="M19 6C19 6 8 13 8 22C8 28.627 12.925 34 19 34C25.075 34 30 28.627 30 22C30 13 19 6 19 6Z"
-              stroke="#C6F135" strokeWidth="2.2" fill="none"/>
-            <path d="M14 24L17.5 20.5L20.5 23.5L25 18" stroke="#C6F135" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              stroke="var(--accent)" strokeWidth="2.2" fill="none"/>
+            <path d="M14 24L17.5 20.5L20.5 23.5L25 18" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
         <h1 style={{

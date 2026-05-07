@@ -6,20 +6,20 @@ import { getBadgeClass } from '../data/exercises'
 import AutoVideoPlayer from './AutoVideoPlayer'
 
 const BADGE_COLOR = {
-  Pecho:        '#FF6B2B',
-  Hombros:      '#4C9EFF',
-  Tríceps:      '#C6F135',
-  Bíceps:       '#C6F135',
-  Espalda:      '#4C9EFF',
-  Piernas:      '#F5C518',
-  Glúteos:      '#F5C518',
-  Core:         '#C6F135',
-  Fuerza:       '#FF6B2B',
-  Global:       '#FF6B2B',
+  Pecho:        '#F97316',
+  Hombros:      '#4589FF',
+  Tríceps:      '#4589FF',
+  Bíceps:       '#4589FF',
+  Espalda:      '#4589FF',
+  Piernas:      '#F59E0B',
+  Glúteos:      '#F59E0B',
+  Core:         '#22C55E',
+  Fuerza:       '#F97316',
+  Global:       '#F97316',
   Movilidad:    '#A78BFA',
   Columna:      '#A78BFA',
   Flexibilidad: '#A78BFA',
-  Recuperación: '#1FD16A',
+  Recuperación: '#22C55E',
 }
 
 function Spinner() {
@@ -32,107 +32,131 @@ function Spinner() {
   )
 }
 
-function SetRow({ num, set, isTimed, isBodyweight, onAdj, onToggle, accentColor }) {
-  const label = isTimed ? 'seg' : 'reps'
-
+/* ── Big set block (matches reference style) ── */
+function SetBlock({ value, label, onDec, onInc, done }) {
+  const opacity = done ? 0.45 : 1
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: '8px',
-      padding: '8px 0',
-      borderBottom: '1px solid var(--border)',
-      opacity: set.done ? 0.55 : 1,
+      flex: 1,
+      background: done ? 'rgba(69,137,255,0.35)' : 'var(--accent)',
+      borderRadius: '14px',
+      overflow: 'hidden',
+      opacity,
       transition: 'opacity 0.2s'
     }}>
-      {/* Set number */}
+      {/* Number + label */}
       <div style={{
-        width: 24, height: 24, borderRadius: '7px', flexShrink: 0,
-        background: set.done ? `${accentColor}18` : 'var(--card2)',
-        border: `1px solid ${set.done ? `${accentColor}35` : 'var(--border2)'}`,
+        padding: '11px 8px 8px',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 800, fontSize: '1.65rem',
+          color: '#fff', lineHeight: 1
+        }}>
+          {typeof value === 'number' && value % 1 !== 0 ? value.toFixed(1) : value}
+        </div>
+        <div style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 600, fontSize: '0.6rem',
+          color: 'rgba(255,255,255,0.65)',
+          letterSpacing: '0.05em', textTransform: 'uppercase',
+          marginTop: '3px'
+        }}>
+          {label}
+        </div>
+      </div>
+      {/* Controls */}
+      <div style={{
+        display: 'flex',
+        borderTop: '1px solid rgba(255,255,255,0.18)'
+      }}>
+        <button
+          onClick={onDec}
+          style={{
+            flex: 1, padding: '7px 0',
+            background: 'transparent', border: 'none',
+            color: 'rgba(255,255,255,0.85)',
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 700, fontSize: '1.15rem',
+            cursor: 'pointer', lineHeight: 1
+          }}
+        >−</button>
+        <div style={{ width: 1, background: 'rgba(255,255,255,0.18)' }} />
+        <button
+          onClick={onInc}
+          style={{
+            flex: 1, padding: '7px 0',
+            background: 'transparent', border: 'none',
+            color: 'rgba(255,255,255,0.85)',
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 700, fontSize: '1.15rem',
+            cursor: 'pointer', lineHeight: 1
+          }}
+        >+</button>
+      </div>
+    </div>
+  )
+}
+
+function SetRow({ num, set, isTimed, isBodyweight, onAdj, onToggle }) {
+  const label = isTimed ? 'seg' : 'reps'
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: '8px',
+      paddingBottom: '10px',
+      marginBottom: '10px',
+      borderBottom: '1px solid var(--border)'
+    }}>
+      {/* Set number badge */}
+      <div style={{
+        width: 28, height: 28, borderRadius: '8px', flexShrink: 0, marginTop: '6px',
+        background: set.done ? 'rgba(34,197,94,0.15)' : 'var(--card2)',
+        border: `1px solid ${set.done ? 'rgba(34,197,94,0.3)' : 'var(--border2)'}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center'
       }}>
         <span style={{
           fontFamily: "'Barlow Condensed', sans-serif",
-          fontWeight: 800, fontSize: '0.72rem',
-          color: set.done ? accentColor : 'var(--muted)'
-        }}>
-          {num}
-        </span>
+          fontWeight: 800, fontSize: '0.78rem',
+          color: set.done ? '#22C55E' : 'var(--muted)'
+        }}>{num}</span>
       </div>
 
       {/* Reps block */}
-      <div style={{
-        flex: 1,
-        background: 'var(--card2)',
-        borderRadius: '10px',
-        border: `1px solid var(--border2)`,
-        padding: '6px 8px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-      }}>
-        <button onClick={() => onAdj('reps', -1)} style={adjBtnStyle}>−</button>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 800, fontSize: '1.1rem',
-            color: 'var(--text)', lineHeight: 1
-          }}>
-            {set.reps}
-          </div>
-          <div style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 600, fontSize: '0.58rem',
-            color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase'
-          }}>
-            {label}
-          </div>
-        </div>
-        <button onClick={() => onAdj('reps', +1)} style={adjBtnStyle}>+</button>
-      </div>
+      <SetBlock
+        value={set.reps}
+        label={label}
+        onDec={() => onAdj('reps', -1)}
+        onInc={() => onAdj('reps', +1)}
+        done={set.done}
+      />
 
-      {/* Weight block */}
+      {/* Weight block (only if not bodyweight) */}
       {!isBodyweight && (
-        <div style={{
-          flex: 1,
-          background: 'var(--card2)',
-          borderRadius: '10px',
-          border: `1px solid var(--border2)`,
-          padding: '6px 8px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-        }}>
-          <button onClick={() => onAdj('weight', -1)} style={adjBtnStyle}>−</button>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800, fontSize: '1.1rem',
-              color: 'var(--text)', lineHeight: 1
-            }}>
-              {set.weight % 1 === 0 ? set.weight : set.weight.toFixed(1)}
-            </div>
-            <div style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 600, fontSize: '0.58rem',
-              color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase'
-            }}>
-              kg
-            </div>
-          </div>
-          <button onClick={() => onAdj('weight', +1)} style={adjBtnStyle}>+</button>
-        </div>
+        <SetBlock
+          value={set.weight}
+          label="kg"
+          onDec={() => onAdj('weight', -1)}
+          onInc={() => onAdj('weight', +1)}
+          done={set.done}
+        />
       )}
 
       {/* Done check */}
       <button
         onClick={onToggle}
         style={{
-          width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
-          border: set.done ? `2px solid ${accentColor}` : '2px solid var(--border2)',
-          background: set.done ? accentColor : 'transparent',
+          width: 30, height: 30, borderRadius: '50%',
+          flexShrink: 0, marginTop: '6px',
+          border: set.done ? '2px solid #22C55E' : '2px solid var(--border2)',
+          background: set.done ? '#22C55E' : 'transparent',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', transition: 'all 0.2s'
         }}
       >
         {set.done && (
           <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
-            <path d="M1 4.5L4 7.5L11 1" stroke="#0C0D0F" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M1 4.5L4 7.5L11 1" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         )}
       </button>
@@ -140,19 +164,9 @@ function SetRow({ num, set, isTimed, isBodyweight, onAdj, onToggle, accentColor 
   )
 }
 
-const adjBtnStyle = {
-  width: 24, height: 24, borderRadius: '7px',
-  background: 'rgba(255,255,255,0.06)',
-  border: '1px solid var(--border2)',
-  color: 'var(--text2)', fontSize: '0.9rem',
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-  cursor: 'pointer', flexShrink: 0,
-  lineHeight: 1, padding: 0
-}
-
 function IllustrationPanel({ svgs, loading, apiKey }) {
   const anyLoading = loading.some(Boolean)
-  const PHASE_LABELS = ['Inicio', 'Medio', 'Final']
+  const LABELS = ['Inicio', 'Medio', 'Final']
   return (
     <div>
       {anyLoading && (
@@ -165,24 +179,25 @@ function IllustrationPanel({ svgs, loading, apiKey }) {
         {[0, 1, 2].map(i => (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
             <div style={{
-              aspectRatio: '3/4', background: 'var(--bg)', borderRadius: '10px',
-              border: '1px solid var(--border)', overflow: 'hidden',
+              aspectRatio: '3/4', background: 'var(--bg)',
+              borderRadius: '10px', border: '1px solid var(--border)',
+              overflow: 'hidden',
               display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}>
-              {svgs[i] ? (
-                <div style={{ width: '100%', height: '100%' }} dangerouslySetInnerHTML={{ __html: svgs[i] }} />
-              ) : loading[i] ? <Spinner /> : (
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <circle cx="9" cy="9" r="7" stroke="var(--faint)" strokeWidth="1.4" strokeDasharray="3 2"/>
-                </svg>
-              )}
+              {svgs[i]
+                ? <div style={{ width: '100%', height: '100%' }} dangerouslySetInnerHTML={{ __html: svgs[i] }} />
+                : loading[i] ? <Spinner />
+                : <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="9" r="7" stroke="var(--faint)" strokeWidth="1.4" strokeDasharray="3 2"/>
+                  </svg>
+              }
             </div>
             <span style={{
               textAlign: 'center', fontSize: '0.6rem', color: 'var(--muted)',
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase'
             }}>
-              {PHASE_LABELS[i]}
+              {LABELS[i]}
             </span>
           </div>
         ))}
@@ -204,11 +219,11 @@ function IllustrationPanel({ svgs, loading, apiKey }) {
 export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, expanded, onExpand }) {
   const { user } = useAuth()
   const { videoId, status: videoStatus } = useAutoVideo(exercise.name)
-  const showIllustrations = videoStatus === 'none' || (!videoId && videoStatus !== 'loading' && videoStatus !== 'searching')
-  const { svgs, loading: illuLoading, apiKey } = useIllustrations(user, exercise.name, expanded && showIllustrations)
+  const noVideo = videoStatus === 'none' || (!videoId && videoStatus !== 'loading' && videoStatus !== 'searching')
+  const { svgs, loading: illuLoading, apiKey } = useIllustrations(user, exercise.name, expanded && noVideo)
   const { sets, adj, toggleDone, doneSets, allDone, best1RM, isTimed, isBodyweight } = useSetTracking(exercise.name, exercise.sets, dayIdx)
 
-  const accentColor = BADGE_COLOR[exercise.badge] ?? 'var(--accent)'
+  const accent = BADGE_COLOR[exercise.badge] ?? 'var(--accent)'
   const isVideoReady = videoStatus === 'ready' && videoId
 
   function handleCheck(e) {
@@ -216,18 +231,18 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
     onToggle(dayIdx, exIdx)
   }
 
-  // Auto-check when all sets done
   function handleSetToggle(i) {
+    const wasDone = sets[i].done
     toggleDone(i)
-    const willAllBeDone = sets.every((s, idx) => idx === i ? !s.done : s.done)
+    const willAllBeDone = sets.every((s, idx) => idx === i ? !wasDone : s.done)
     if (willAllBeDone && !done) onToggle(dayIdx, exIdx)
-    if (!willAllBeDone && done) onToggle(dayIdx, exIdx)
+    else if (!willAllBeDone && done) onToggle(dayIdx, exIdx)
   }
 
   return (
     <div style={{
-      background: done ? 'rgba(31,209,106,0.03)' : 'var(--card)',
-      border: `1px solid ${expanded ? `${accentColor}40` : done ? 'rgba(31,209,106,0.2)' : 'var(--border)'}`,
+      background: done ? 'rgba(34,197,94,0.04)' : 'var(--card)',
+      border: `1px solid ${expanded ? `${accent}45` : done ? 'rgba(34,197,94,0.22)' : 'var(--border)'}`,
       borderRadius: 'var(--r2)',
       overflow: 'hidden',
       transition: 'border-color 0.2s',
@@ -236,33 +251,32 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
       {/* Left accent bar */}
       <div style={{
         position: 'absolute', left: 0, top: 0, bottom: 0, width: 3,
-        background: done ? 'var(--success)' : expanded ? accentColor : 'transparent',
+        background: done ? '#22C55E' : expanded ? accent : 'transparent',
         borderRadius: '18px 0 0 18px',
         transition: 'background 0.2s'
       }} />
 
-      {/* ── Header ── */}
+      {/* ── Header row ── */}
       <div onClick={onExpand} style={{
         display: 'flex', alignItems: 'center', gap: '12px',
         padding: '13px 14px 13px 16px', cursor: 'pointer'
       }}>
-        {/* Main check */}
+        {/* Check */}
         <button onClick={handleCheck} style={{
           width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-          border: done ? '2px solid var(--success)' : '2px solid var(--border2)',
-          background: done ? 'var(--success)' : 'transparent',
+          border: done ? '2px solid #22C55E' : '2px solid var(--border2)',
+          background: done ? '#22C55E' : 'transparent',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', transition: 'all 0.2s'
         }}>
           {done && (
             <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
-              <path d="M1 4.5L4 7.5L11 1" stroke="#0C0D0F" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M1 4.5L4 7.5L11 1" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           )}
         </button>
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          {/* Name + badge */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
             <span style={{
               fontWeight: 600, fontSize: '0.9rem',
@@ -275,31 +289,22 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
             <span className={getBadgeClass(exercise.badge)}>{exercise.badge}</span>
             {isVideoReady && (
               <span style={{
-                background: 'rgba(255,0,0,0.12)', borderRadius: '5px',
-                padding: '1px 5px', fontSize: '0.58rem', color: '#FF4545',
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 700, letterSpacing: '0.04em'
-              }}>
-                ▶ VIDEO
-              </span>
+                background: 'rgba(239,68,68,0.12)', borderRadius: '5px',
+                padding: '1px 5px', fontSize: '0.58rem', color: '#EF4444',
+                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700
+              }}>▶ VIDEO</span>
             )}
           </div>
-
-          {/* Sets info */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
-            <span style={{
-              fontSize: '0.73rem', color: 'var(--muted)',
-              fontFamily: "'Barlow Condensed', sans-serif"
-            }}>
+            <span style={{ fontSize: '0.73rem', color: 'var(--muted)', fontFamily: "'Barlow Condensed', sans-serif" }}>
               {exercise.sets}
             </span>
             {doneSets > 0 && (
               <span style={{
                 fontSize: '0.68rem',
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 700,
-                color: allDone ? 'var(--success)' : accentColor,
-                background: allDone ? 'rgba(31,209,106,0.12)' : `${accentColor}15`,
+                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
+                color: allDone ? '#22C55E' : 'var(--accent)',
+                background: allDone ? 'rgba(34,197,94,0.12)' : 'var(--accent-dim)',
                 padding: '1px 6px', borderRadius: '5px'
               }}>
                 {doneSets}/{sets.length} series
@@ -308,25 +313,22 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
           </div>
         </div>
 
-        {/* Expand arrow */}
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
           style={{
-            flexShrink: 0, opacity: 0.4,
+            flexShrink: 0, opacity: 0.35,
             transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.22s ease'
-          }}
-        >
+          }}>
           <path d="M2 5l5 5 5-5" stroke="var(--text2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
 
-      {/* ── Expanded content ── */}
+      {/* ── Expanded ── */}
       {expanded && (
         <>
-          {/* Muscles row */}
+          {/* Muscles */}
           <div style={{
-            padding: '8px 16px',
-            borderTop: '1px solid var(--border)',
+            padding: '8px 16px', borderTop: '1px solid var(--border)',
             background: 'var(--card2)',
             display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap'
           }}>
@@ -334,58 +336,51 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
               fontSize: '0.63rem', color: 'var(--muted)',
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase'
-            }}>
-              Músculos:
-            </span>
+            }}>Músculos:</span>
             {exercise.muscles.split(' · ').map((m, i) => (
               <span key={i} style={{
-                fontSize: '0.67rem', color: accentColor,
+                fontSize: '0.67rem', color: accent,
                 fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
-                background: `${accentColor}12`, padding: '2px 6px', borderRadius: '5px'
-              }}>
-                {m}
-              </span>
+                background: `${accent}12`, padding: '2px 7px', borderRadius: '5px',
+                border: `1px solid ${accent}20`
+              }}>{m}</span>
             ))}
           </div>
 
           {/* ── SET TRACKER ── */}
-          <div style={{ padding: '12px 14px', borderTop: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <div style={{ padding: '14px 14px 4px', borderTop: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
               <span style={{
                 fontSize: '0.63rem', color: 'var(--muted)',
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase'
               }}>
-                Series · {isTimed ? 'Tiempo' : isBodyweight ? 'Repeticiones' : 'Reps + Peso'}
+                Series
               </span>
               {best1RM > 0 && (
                 <span style={{
-                  fontSize: '0.68rem',
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 700, color: accentColor,
-                  background: `${accentColor}12`,
-                  padding: '2px 8px', borderRadius: '6px',
-                  border: `1px solid ${accentColor}25`
+                  fontSize: '0.7rem', fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700, color: 'var(--accent)',
+                  background: 'var(--accent-dim)',
+                  padding: '2px 10px', borderRadius: '6px',
+                  border: '1px solid var(--accent-glow)'
                 }}>
                   1RM est. {best1RM} kg
                 </span>
               )}
             </div>
 
-            <div>
-              {sets.map((set, i) => (
-                <SetRow
-                  key={i}
-                  num={i + 1}
-                  set={set}
-                  isTimed={isTimed}
-                  isBodyweight={isBodyweight}
-                  onAdj={(field, delta) => adj(i, field, delta)}
-                  onToggle={() => handleSetToggle(i)}
-                  accentColor={accentColor}
-                />
-              ))}
-            </div>
+            {sets.map((set, i) => (
+              <SetRow
+                key={i}
+                num={i + 1}
+                set={set}
+                isTimed={isTimed}
+                isBodyweight={isBodyweight}
+                onAdj={(field, delta) => adj(i, field, delta)}
+                onToggle={() => handleSetToggle(i)}
+              />
+            ))}
           </div>
 
           {/* Video / Illustrations */}
@@ -403,16 +398,14 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
               </div>
             )}
             {videoId && <AutoVideoPlayer exerciseName={exercise.name} />}
-            {showIllustrations && videoStatus !== 'loading' && videoStatus !== 'searching' && (
+            {noVideo && videoStatus !== 'loading' && videoStatus !== 'searching' && (
               <div style={{ marginTop: videoId ? '12px' : 0 }}>
                 <div style={{
                   fontSize: '0.63rem', color: 'var(--muted)',
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 600, letterSpacing: '0.06em',
                   textTransform: 'uppercase', marginBottom: '10px'
-                }}>
-                  Ilustraciones IA
-                </div>
+                }}>Ilustraciones IA</div>
                 <IllustrationPanel svgs={svgs} loading={illuLoading} apiKey={apiKey} />
               </div>
             )}
@@ -420,31 +413,25 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
 
           {/* Steps */}
           <div style={{
-            padding: '12px 16px 16px',
-            borderTop: '1px solid var(--border)',
+            padding: '12px 16px 18px', borderTop: '1px solid var(--border)',
             display: 'flex', flexDirection: 'column', gap: '10px'
           }}>
             <span style={{
               fontSize: '0.63rem', color: 'var(--muted)',
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase'
-            }}>
-              Ejecución
-            </span>
+            }}>Ejecución</span>
             {exercise.steps.map((step, i) => (
               <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                 <div style={{
                   width: 22, height: 22, borderRadius: '8px', flexShrink: 0,
-                  background: `${accentColor}15`,
-                  border: `1px solid ${accentColor}30`,
+                  background: `${accent}14`, border: `1px solid ${accent}28`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
                   <span style={{
                     fontFamily: "'Barlow Condensed', sans-serif",
-                    fontWeight: 800, fontSize: '0.75rem', color: accentColor
-                  }}>
-                    {i + 1}
-                  </span>
+                    fontWeight: 800, fontSize: '0.75rem', color: accent
+                  }}>{i + 1}</span>
                 </div>
                 <p style={{ fontSize: '0.83rem', color: 'var(--text2)', lineHeight: 1.55, flex: 1 }}>
                   {step}

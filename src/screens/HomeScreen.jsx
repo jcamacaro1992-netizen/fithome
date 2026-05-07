@@ -8,11 +8,11 @@ import RestDay from '../components/RestDay'
 const JS_DAY_TO_IDX = [6, 0, 1, 2, 3, 4, 5]
 
 const FOCUS_COLORS = {
-  'Empuje superior':   { color: '#FF6B2B', bg: 'rgba(255,107,43,0.08)' },
-  'Tirón + Bíceps':    { color: '#4C9EFF', bg: 'rgba(76,158,255,0.08)' },
-  'Piernas + Glúteos': { color: '#F5C518', bg: 'rgba(245,197,24,0.08)' },
+  'Empuje superior':   { color: '#F97316', bg: 'rgba(249,115,22,0.08)' },
+  'Tirón + Bíceps':    { color: '#4589FF', bg: 'rgba(69,137,255,0.08)' },
+  'Piernas + Glúteos': { color: '#F59E0B', bg: 'rgba(245,158,11,0.08)' },
   'Movilidad activa':  { color: '#A78BFA', bg: 'rgba(167,139,250,0.08)' },
-  'Fuerza total':      { color: '#C6F135', bg: 'rgba(198,241,53,0.08)' },
+  'Fuerza total':      { color: '#22C55E', bg: 'rgba(34,197,94,0.08)'  },
   'Descanso total':    { color: '#A78BFA', bg: 'rgba(167,139,250,0.08)' },
 }
 
