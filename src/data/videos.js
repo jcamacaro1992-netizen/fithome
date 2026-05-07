@@ -127,8 +127,6 @@ export const VIDEO_DATA = {
     query: 'sergio orduz respiracion diafragmatica tecnica',
     candidates: ['DbDoBzGY3vo', 'kgTL5GnBDy8', 'YFPnPe33oI4']
   },
-}
-
   'Crunch abdominal en suelo': {
     query: 'sergio orduz crunch abdominal suelo correcto',
     candidates: ['Zyx0yzQ9fxc', 'AvkJ6S2Pw4k', 'MKmrqckrV3M']
@@ -157,6 +155,7 @@ export const VIDEO_DATA = {
     query: 'sergio orduz curl femoral suelo isquiotibiales',
     candidates: ['cYPSuDd3dMo', 'LYoAqC5QFKM', 'IWPH3gXSZJU']
   },
+}
 
 export function getVideoData(exerciseName) {
   return VIDEO_DATA[exerciseName] ?? {
