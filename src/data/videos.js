@@ -129,6 +129,35 @@ export const VIDEO_DATA = {
   },
 }
 
+  'Crunch abdominal en suelo': {
+    query: 'sergio orduz crunch abdominal suelo correcto',
+    candidates: ['Zyx0yzQ9fxc', 'AvkJ6S2Pw4k', 'MKmrqckrV3M']
+  },
+  'Elevación de piernas en suelo': {
+    query: 'sergio orduz elevacion piernas suelo abdomen',
+    candidates: ['l4kQd9eWclI', 'JB2oyawG9KI', 'wCxkSzRDxMo']
+  },
+  'Patada trasera de pie': {
+    query: 'sergio orduz patada trasera pie gluteo ejercicio',
+    candidates: ['SEdqd9YoIrg', 'RqF14HCn3lI', 'QOJBpeBH9EY']
+  },
+  'Sentadilla sumo con mancuerna': {
+    query: 'sergio orduz sentadilla sumo mancuerna gluteos',
+    candidates: ['bEv6CCg2BC8', 'SAzjIAP8etA', 'AvXZBkA96wQ']
+  },
+  'Superman en suelo': {
+    query: 'sergio orduz superman suelo espalda baja gluteos',
+    candidates: ['NW3a0PCJCHA', 'Iu_L7lM7yzc', 'rTFPaLNFwpI']
+  },
+  'Extensión de espalda en suelo': {
+    query: 'sergio orduz extension espalda suelo lumbar',
+    candidates: ['3rPFBKPGHoY', 'MjhP6MxkXwE', 'w4iHDp9MLNA']
+  },
+  'Curl femoral en suelo': {
+    query: 'sergio orduz curl femoral suelo isquiotibiales',
+    candidates: ['cYPSuDd3dMo', 'LYoAqC5QFKM', 'IWPH3gXSZJU']
+  },
+
 export function getVideoData(exerciseName) {
   return VIDEO_DATA[exerciseName] ?? {
     query: `sergio orduz ${exerciseName} ejercicio correcto`,

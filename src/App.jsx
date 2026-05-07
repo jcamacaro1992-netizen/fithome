@@ -4,6 +4,7 @@ import { useAuth } from './hooks/useAuth'
 import TabBar from './components/TabBar'
 import HomeScreen from './screens/HomeScreen'
 import WeekScreen from './screens/WeekScreen'
+import ZonasScreen from './screens/ZonasScreen'
 import ConfigScreen from './screens/ConfigScreen'
 import DetailScreen from './screens/DetailScreen'
 import LoginScreen from './screens/LoginScreen'
@@ -15,6 +16,7 @@ function ProtectedLayout() {
       <Routes>
         <Route path="/" element={<HomeScreen />} />
         <Route path="/semana" element={<WeekScreen />} />
+        <Route path="/zonas" element={<ZonasScreen />} />
         <Route path="/config" element={<ConfigScreen />} />
         <Route path="/ejercicio/:dayIdx/:exIdx" element={<DetailScreen />} />
         <Route path="*" element={<Navigate to="/" replace />} />

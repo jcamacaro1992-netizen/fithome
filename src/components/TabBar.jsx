@@ -26,6 +26,19 @@ const TABS = [
     )
   },
   {
+    path: '/zonas',
+    label: 'Zonas',
+    icon: (active) => (
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <ellipse cx="11" cy="5" rx="3" ry="3.2" stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.6"/>
+        <rect x="7.5" y="9" width="7" height="5" rx="1.5" stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.6"/>
+        <rect x="8" y="14.5" width="2.5" height="5" rx="1.2" stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.6"/>
+        <rect x="11.5" y="14.5" width="2.5" height="5" rx="1.2" stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.6"/>
+        <path d="M7.5 10.5L4.5 12M14.5 10.5L17.5 12" stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    )
+  },
+  {
     path: '/config',
     label: 'Ajustes',
     icon: (active) => (
