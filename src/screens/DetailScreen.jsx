@@ -4,29 +4,63 @@ import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
 import { DAYS, getBadgeClass } from '../data/exercises'
 import { getExerciseImage } from '../data/exerciseImages'
+import { getVideoData } from '../data/videos'
 import NavHeader from '../components/NavHeader'
 import AutoVideoPlayer from '../components/AutoVideoPlayer'
 
 function ReferenceImages({ exerciseName }) {
-  const imgSrc = getExerciseImage(exerciseName)
-  const [failed, setFailed] = useState(false)
-  if (!imgSrc || failed) return null
+  const { candidates } = getVideoData(exerciseName)
+  const staticImg = getExerciseImage(exerciseName)
+  const [ytIdx, setYtIdx] = useState(0)
+  const [useStatic, setUseStatic] = useState(false)
+  const [staticFailed, setStaticFailed] = useState(false)
+
+  const ytId = candidates[ytIdx]
+  const ytSearch = `https://www.youtube.com/results?search_query=${encodeURIComponent('como hacer ' + exerciseName)}`
+
+  if ((!ytId && !staticImg) || (useStatic && staticFailed)) return null
+
+  const src = useStatic
+    ? staticImg
+    : ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : staticImg
+
+  function handleError() {
+    if (!useStatic) {
+      if (ytIdx < candidates.length - 1) setYtIdx(i => i + 1)
+      else if (staticImg) setUseStatic(true)
+      else setStaticFailed(true)
+    } else {
+      setStaticFailed(true)
+    }
+  }
+
+  if (!src) return null
+
   return (
     <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--r2)', overflow: 'hidden' }}>
-      <img
-        src={imgSrc}
-        alt={exerciseName}
-        onError={() => setFailed(true)}
-        style={{ width: '100%', display: 'block', objectFit: 'contain', maxHeight: '300px', background: 'var(--card2)' }}
-      />
-      <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent('sergio orduz ' + exerciseName)}`}
-        target="_blank" rel="noopener noreferrer"
+      <div style={{ position: 'relative' }}>
+        <img
+          src={src}
+          alt={exerciseName}
+          onError={handleError}
+          style={{ width: '100%', display: 'block', objectFit: useStatic ? 'contain' : 'cover', maxHeight: '300px', background: 'var(--card2)' }}
+        />
+        {!useStatic && ytId && (
+          <a href={`https://www.youtube.com/watch?v=${ytId}`} target="_blank" rel="noopener noreferrer"
+            style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.22)', textDecoration: 'none' }}>
+            <div style={{ width: 54, height: 54, borderRadius: '50%', background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.55)' }}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7 4l12 6-12 6V4z" fill="white"/></svg>
+            </div>
+          </a>
+        )}
+      </div>
+      <a href={ytSearch} target="_blank" rel="noopener noreferrer"
         style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', textDecoration: 'none', borderTop: '1px solid var(--border)' }}>
         <div style={{ background: '#FF0000', borderRadius: '4px', width: 26, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <svg width="9" height="8" viewBox="0 0 9 8" fill="white"><path d="M3.5 6V2l4 2-4 2z"/></svg>
         </div>
         <span style={{ fontSize: '0.8rem', color: 'var(--text2)', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600 }}>
-          Ver en YouTube — @sergioorduz ↗
+          Ver en YouTube ↗
         </span>
       </a>
     </div>

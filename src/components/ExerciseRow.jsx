@@ -165,14 +165,42 @@ function SetRow({ num, set, isTimed, isBodyweight, onAdj, onToggle }) {
   )
 }
 
-/* ── Exercise reference image (curated, shown only when no video) ── */
+/* ── Exercise reference image (shown only when no embeddable video found) ── */
 function ReferenceImage({ exerciseName }) {
-  const imgSrc = getExerciseImage(exerciseName)
-  const [failed, setFailed] = useState(false)
+  const { candidates } = getVideoData(exerciseName)
+  const staticImg = getExerciseImage(exerciseName)
+  const [ytIdx, setYtIdx] = useState(0)
+  const [useStatic, setUseStatic] = useState(false)
+  const [staticFailed, setStaticFailed] = useState(false)
 
-  if (!imgSrc || failed) return null
+  const ytId = candidates[ytIdx]
+  const ytSearch = `https://www.youtube.com/results?search_query=${encodeURIComponent('como hacer ' + exerciseName)}`
+  const ytLink = ytId ? `https://www.youtube.com/watch?v=${ytId}` : ytSearch
 
-  const ytSearch = `https://www.youtube.com/results?search_query=${encodeURIComponent('sergio orduz ' + exerciseName)}`
+  // Nothing to show
+  if ((!ytId && !staticImg) || (useStatic && staticFailed)) return null
+
+  const src = useStatic
+    ? staticImg
+    : ytId
+      ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+      : staticImg
+
+  function handleError() {
+    if (!useStatic) {
+      if (ytIdx < candidates.length - 1) {
+        setYtIdx(i => i + 1)
+      } else if (staticImg) {
+        setUseStatic(true)
+      } else {
+        setStaticFailed(true)
+      }
+    } else {
+      setStaticFailed(true)
+    }
+  }
+
+  if (!src) return null
 
   return (
     <div>
@@ -185,40 +213,30 @@ function ReferenceImage({ exerciseName }) {
         Referencia del ejercicio
       </span>
 
-      <div style={{
-        borderRadius: '12px', overflow: 'hidden',
-        border: '1px solid var(--border)',
-        background: 'var(--card2)'
-      }}>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--card2)', position: 'relative' }}>
         <img
-          src={imgSrc}
+          src={src}
           alt={exerciseName}
-          onError={() => setFailed(true)}
-          style={{ width: '100%', display: 'block', objectFit: 'contain', maxHeight: '260px' }}
+          onError={handleError}
+          style={{ width: '100%', display: 'block', objectFit: useStatic ? 'contain' : 'cover', maxHeight: '260px' }}
         />
+        {!useStatic && ytId && (
+          <a href={ytLink} target="_blank" rel="noopener noreferrer"
+            style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.22)', textDecoration: 'none' }}>
+            <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.55)' }}>
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M5.5 3.5l9 4.5-9 4.5V3.5z" fill="white"/></svg>
+            </div>
+          </a>
+        )}
       </div>
 
-      <a
-        href={ytSearch}
-        target="_blank" rel="noopener noreferrer"
-        style={{
-          display: 'flex', alignItems: 'center', gap: '7px', marginTop: '8px',
-          padding: '8px 10px', borderRadius: '9px',
-          background: 'rgba(255,0,0,0.07)', border: '1px solid rgba(255,0,0,0.14)',
-          textDecoration: 'none'
-        }}
-      >
-        <div style={{
-          background: '#FF0000', borderRadius: '3px',
-          width: 24, height: 17, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-        }}>
+      <a href={ytSearch} target="_blank" rel="noopener noreferrer"
+        style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '8px', padding: '8px 10px', borderRadius: '9px', background: 'rgba(255,0,0,0.07)', border: '1px solid rgba(255,0,0,0.14)', textDecoration: 'none' }}>
+        <div style={{ background: '#FF0000', borderRadius: '3px', width: 24, height: 17, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <svg width="9" height="8" viewBox="0 0 9 8" fill="white"><path d="M3.5 6V2l4 2-4 2z"/></svg>
         </div>
-        <span style={{
-          fontSize: '0.73rem', color: 'var(--text2)',
-          fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600
-        }}>
-          Ver más en YouTube — @sergioorduz ↗
+        <span style={{ fontSize: '0.73rem', color: 'var(--text2)', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600 }}>
+          Ver más en YouTube ↗
         </span>
       </a>
     </div>
