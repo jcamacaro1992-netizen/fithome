@@ -1,8 +1,8 @@
-import { useAuth } from '../hooks/useAuth'
-import { useIllustrations } from '../hooks/useIllustrations'
+import { useState } from 'react'
 import { useAutoVideo } from '../hooks/useAutoVideo'
 import { useSetTracking } from '../hooks/useSetTracking'
 import { getBadgeClass } from '../data/exercises'
+import { getVideoData } from '../data/videos'
 import AutoVideoPlayer from './AutoVideoPlayer'
 
 const BADGE_COLOR = {
@@ -164,36 +164,64 @@ function SetRow({ num, set, isTimed, isBodyweight, onAdj, onToggle }) {
   )
 }
 
-function IllustrationPanel({ svgs, loading, apiKey }) {
-  const anyLoading = loading.some(Boolean)
+/* ── YouTube thumbnail reference images ── */
+function ReferenceImages({ exerciseName }) {
+  const { candidates } = getVideoData(exerciseName)
+  const [failed, setFailed] = useState({})
+
+  // Up to 3 different thumbnails (one per candidate); fallback: repeat first
+  const ids = [
+    candidates[0],
+    candidates[1] || candidates[0],
+    candidates[2] || candidates[0]
+  ]
   const LABELS = ['Inicio', 'Medio', 'Final']
+
+  if (!candidates[0]) return null
+
   return (
     <div>
-      {anyLoading && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-          <Spinner />
-          <span style={{ fontSize: '0.73rem', color: 'var(--muted)' }}>Generando ilustraciones IA…</span>
-        </div>
-      )}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-        {[0, 1, 2].map(i => (
-          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-            <div style={{
-              aspectRatio: '3/4', background: 'var(--bg)',
-              borderRadius: '10px', border: '1px solid var(--border)',
-              overflow: 'hidden',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
-              {svgs[i]
-                ? <div style={{ width: '100%', height: '100%' }} dangerouslySetInnerHTML={{ __html: svgs[i] }} />
-                : loading[i] ? <Spinner />
-                : <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <circle cx="9" cy="9" r="7" stroke="var(--faint)" strokeWidth="1.4" strokeDasharray="3 2"/>
+      <span style={{
+        fontSize: '0.62rem', color: 'var(--muted)',
+        fontFamily: "'Barlow Condensed', sans-serif",
+        fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
+        display: 'block', marginBottom: '8px'
+      }}>
+        Referencia visual
+      </span>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+        {ids.map((id, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <a
+              href={`https://www.youtube.com/watch?v=${id}`}
+              target="_blank" rel="noopener noreferrer"
+              style={{ display: 'block', borderRadius: '8px', overflow: 'hidden',
+                border: '1px solid var(--border)', background: 'var(--bg)' }}
+            >
+              {failed[i] ? (
+                <div style={{
+                  aspectRatio: '4/3', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', background: 'var(--card2)'
+                }}>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 3a7 7 0 100 14A7 7 0 0010 3zM8 7.5l5 2.5-5 2.5V7.5z"
+                      fill="rgba(239,68,68,0.6)"/>
                   </svg>
-              }
-            </div>
+                </div>
+              ) : (
+                <img
+                  src={`https://img.youtube.com/vi/${id}/mqdefault.jpg`}
+                  alt={`${exerciseName} - ${LABELS[i]}`}
+                  onError={() => setFailed(f => ({ ...f, [i]: true }))}
+                  style={{
+                    width: '100%', aspectRatio: '4/3',
+                    objectFit: 'cover', display: 'block'
+                  }}
+                />
+              )}
+            </a>
             <span style={{
-              textAlign: 'center', fontSize: '0.6rem', color: 'var(--muted)',
+              textAlign: 'center', fontSize: '0.58rem', color: 'var(--muted)',
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase'
             }}>
@@ -202,25 +230,36 @@ function IllustrationPanel({ svgs, loading, apiKey }) {
           </div>
         ))}
       </div>
-      {!apiKey && (
+      <a
+        href={`https://www.youtube.com/results?search_query=${encodeURIComponent('sergio orduz ' + exerciseName)}`}
+        target="_blank" rel="noopener noreferrer"
+        style={{
+          display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px',
+          padding: '7px 10px', borderRadius: '8px',
+          background: 'rgba(255,0,0,0.08)', border: '1px solid rgba(255,0,0,0.15)',
+          textDecoration: 'none'
+        }}
+      >
         <div style={{
-          marginTop: '10px', padding: '8px 10px',
-          background: 'var(--card2)', borderRadius: '8px',
-          border: '1px dashed var(--border2)',
-          fontSize: '0.72rem', color: 'var(--muted)', textAlign: 'center'
+          background: '#FF0000', borderRadius: '3px',
+          width: 22, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
         }}>
-          Añade tu API key Anthropic en Ajustes para ilustraciones automáticas
+          <svg width="8" height="7" viewBox="0 0 8 7" fill="white"><path d="M3 5V2l3 1.5L3 5z"/></svg>
         </div>
-      )}
+        <span style={{
+          fontSize: '0.72rem', color: 'var(--text2)',
+          fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600
+        }}>
+          Ver videos en YouTube ↗
+        </span>
+      </a>
     </div>
   )
 }
 
 export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, expanded, onExpand }) {
-  const { user } = useAuth()
   const { videoId, status: videoStatus } = useAutoVideo(exercise.name)
   const noVideo = videoStatus === 'none' || (!videoId && videoStatus !== 'loading' && videoStatus !== 'searching')
-  const { svgs, loading: illuLoading, apiKey } = useIllustrations(user, exercise.name, expanded && noVideo)
   const { count, reps, weight, done: done_sets, adj, markSet, allDone, best1RM, isTimed, isBodyweight } = useSetTracking(exercise.name, exercise.sets, dayIdx)
 
   const accent = BADGE_COLOR[exercise.badge] ?? 'var(--accent)'
@@ -446,15 +485,7 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
             )}
             {videoId && <AutoVideoPlayer exerciseName={exercise.name} />}
             {noVideo && videoStatus !== 'loading' && videoStatus !== 'searching' && (
-              <div style={{ marginTop: videoId ? '12px' : 0 }}>
-                <div style={{
-                  fontSize: '0.63rem', color: 'var(--muted)',
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 600, letterSpacing: '0.06em',
-                  textTransform: 'uppercase', marginBottom: '10px'
-                }}>Ilustraciones IA</div>
-                <IllustrationPanel svgs={svgs} loading={illuLoading} apiKey={apiKey} />
-              </div>
+              <ReferenceImages exerciseName={exercise.name} />
             )}
           </div>
 
