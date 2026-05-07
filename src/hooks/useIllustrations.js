@@ -63,7 +63,8 @@ export function useIllustrations(user, exerciseName, autoGenerate = false) {
   const [svgs, setSvgs]       = useState([null, null, null])
   const [loading, setLoading] = useState([false, false, false])
   const [apiKey, setApiKey]   = useState('')
-  const [serverHasKey, setServerHasKey] = useState(true) // optimistic
+  const [serverHasKey, setServerHasKey] = useState(true)   // optimistic — assume server key exists until proven otherwise
+  const [serverChecked, setServerChecked] = useState(false) // true once we know server status
   const autoTriggered = useRef(false)
 
   const exerciseKey = exerciseName?.toLowerCase().replace(/\s+/g, '_')
@@ -115,6 +116,7 @@ export function useIllustrations(user, exerciseName, autoGenerate = false) {
       // 1. Try server endpoint first (ANTHROPIC_API_KEY on Vercel)
       if (serverHasKey) {
         const { svg, noServerKey } = await generateViaServer(exerciseName, phaseIdx)
+        setServerChecked(true)
         if (noServerKey) {
           setServerHasKey(false)
         } else {
@@ -151,8 +153,8 @@ export function useIllustrations(user, exerciseName, autoGenerate = false) {
     }
   }
 
-  // Show "add key" message only if neither server nor user has a key
-  const showKeyPrompt = !serverHasKey && !apiKey
+  // Show "add key" message only once we know server has no key AND user has no key
+  const showKeyPrompt = serverChecked && !serverHasKey && !apiKey
 
   return { svgs, loading, apiKey: showKeyPrompt ? '' : 'ok', generate: generatePhase, generateAll }
 }
