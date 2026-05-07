@@ -164,20 +164,13 @@ function SetRow({ num, set, isTimed, isBodyweight, onAdj, onToggle }) {
   )
 }
 
-/* ── YouTube thumbnail reference images ── */
-function ReferenceImages({ exerciseName }) {
-  const { candidates } = getVideoData(exerciseName)
-  const [failed, setFailed] = useState({})
+/* ── Exercise reference image (YouTube thumbnail, shown only when no video) ── */
+function ReferenceImage({ exerciseName }) {
+  const { candidates, query } = getVideoData(exerciseName)
+  const [idx, setIdx] = useState(0)
 
-  // Up to 3 different thumbnails (one per candidate); fallback: repeat first
-  const ids = [
-    candidates[0],
-    candidates[1] || candidates[0],
-    candidates[2] || candidates[0]
-  ]
-  const LABELS = ['Inicio', 'Medio', 'Final']
-
-  if (!candidates[0]) return null
+  const id = candidates[idx]
+  if (!id) return null
 
   return (
     <div>
@@ -187,70 +180,73 @@ function ReferenceImages({ exerciseName }) {
         fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
         display: 'block', marginBottom: '8px'
       }}>
-        Referencia visual
+        Referencia del ejercicio
       </span>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
-        {ids.map((id, i) => (
-          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <a
-              href={`https://www.youtube.com/watch?v=${id}`}
-              target="_blank" rel="noopener noreferrer"
-              style={{ display: 'block', borderRadius: '8px', overflow: 'hidden',
-                border: '1px solid var(--border)', background: 'var(--bg)' }}
-            >
-              {failed[i] ? (
-                <div style={{
-                  aspectRatio: '4/3', display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', background: 'var(--card2)'
-                }}>
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M10 3a7 7 0 100 14A7 7 0 0010 3zM8 7.5l5 2.5-5 2.5V7.5z"
-                      fill="rgba(239,68,68,0.6)"/>
-                  </svg>
-                </div>
-              ) : (
-                <img
-                  src={`https://img.youtube.com/vi/${id}/mqdefault.jpg`}
-                  alt={`${exerciseName} - ${LABELS[i]}`}
-                  onError={() => setFailed(f => ({ ...f, [i]: true }))}
-                  style={{
-                    width: '100%', aspectRatio: '4/3',
-                    objectFit: 'cover', display: 'block'
-                  }}
-                />
-              )}
-            </a>
-            <span style={{
-              textAlign: 'center', fontSize: '0.58rem', color: 'var(--muted)',
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase'
-            }}>
-              {LABELS[i]}
-            </span>
+
+      {/* Main image */}
+      <div style={{
+        borderRadius: '12px', overflow: 'hidden',
+        border: '1px solid var(--border)',
+        background: 'var(--bg)', position: 'relative'
+      }}>
+        <img
+          src={`https://img.youtube.com/vi/${id}/maxresdefault.jpg`}
+          alt={exerciseName}
+          onError={(e) => {
+            // Try hqdefault if maxres fails, then next candidate
+            if (e.target.src.includes('maxresdefault')) {
+              e.target.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+            } else if (idx < candidates.length - 1) {
+              setIdx(i => i + 1)
+            }
+          }}
+          style={{ width: '100%', display: 'block', objectFit: 'cover' }}
+        />
+        {/* Play overlay */}
+        <a
+          href={`https://www.youtube.com/watch?v=${id}`}
+          target="_blank" rel="noopener noreferrer"
+          style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.25)', textDecoration: 'none'
+          }}
+        >
+          <div style={{
+            width: 48, height: 48, borderRadius: '50%',
+            background: 'rgba(0,0,0,0.65)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: '2px solid rgba(255,255,255,0.6)'
+          }}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M6 4l10 5-10 5V4z" fill="white"/>
+            </svg>
           </div>
-        ))}
+        </a>
       </div>
+
+      {/* YouTube link */}
       <a
         href={`https://www.youtube.com/results?search_query=${encodeURIComponent('sergio orduz ' + exerciseName)}`}
         target="_blank" rel="noopener noreferrer"
         style={{
-          display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px',
-          padding: '7px 10px', borderRadius: '8px',
-          background: 'rgba(255,0,0,0.08)', border: '1px solid rgba(255,0,0,0.15)',
+          display: 'flex', alignItems: 'center', gap: '7px', marginTop: '8px',
+          padding: '8px 10px', borderRadius: '9px',
+          background: 'rgba(255,0,0,0.07)', border: '1px solid rgba(255,0,0,0.14)',
           textDecoration: 'none'
         }}
       >
         <div style={{
           background: '#FF0000', borderRadius: '3px',
-          width: 22, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+          width: 24, height: 17, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
         }}>
-          <svg width="8" height="7" viewBox="0 0 8 7" fill="white"><path d="M3 5V2l3 1.5L3 5z"/></svg>
+          <svg width="9" height="8" viewBox="0 0 9 8" fill="white"><path d="M3.5 6V2l4 2-4 2z"/></svg>
         </div>
         <span style={{
-          fontSize: '0.72rem', color: 'var(--text2)',
+          fontSize: '0.73rem', color: 'var(--text2)',
           fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600
         }}>
-          Ver videos en YouTube ↗
+          Ver más en YouTube — @sergioorduz ↗
         </span>
       </a>
     </div>
@@ -485,7 +481,7 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
             )}
             {videoId && <AutoVideoPlayer exerciseName={exercise.name} />}
             {noVideo && videoStatus !== 'loading' && videoStatus !== 'searching' && (
-              <ReferenceImages exerciseName={exercise.name} />
+              <ReferenceImage exerciseName={exercise.name} />
             )}
           </div>
 

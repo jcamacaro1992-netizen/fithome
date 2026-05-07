@@ -9,44 +9,39 @@ import AutoVideoPlayer from '../components/AutoVideoPlayer'
 
 function ReferenceImages({ exerciseName }) {
   const { candidates } = getVideoData(exerciseName)
-  const [failed, setFailed] = useState({})
-  const ids = [candidates[0], candidates[1] || candidates[0], candidates[2] || candidates[0]]
-  const LABELS = ['Inicio', 'Medio', 'Final']
-  if (!candidates[0]) return null
+  const [idx, setIdx] = useState(0)
+  const id = candidates[idx]
+  if (!id) return null
   return (
-    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--r2)', padding: '16px 20px' }}>
-      <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.85rem', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text2)', marginBottom: '12px' }}>
-        Referencia visual
-      </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '12px' }}>
-        {ids.map((id, i) => (
-          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-            <a href={`https://www.youtube.com/watch?v=${id}`} target="_blank" rel="noopener noreferrer"
-              style={{ display: 'block', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--bg)' }}>
-              {failed[i] ? (
-                <div style={{ aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--card2)' }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 4a8 8 0 100 16A8 8 0 0012 4zM9.5 8.5l6 3.5-6 3.5V8.5z" fill="rgba(239,68,68,0.5)"/></svg>
-                </div>
-              ) : (
-                <img src={`https://img.youtube.com/vi/${id}/mqdefault.jpg`} alt={LABELS[i]}
-                  onError={() => setFailed(f => ({ ...f, [i]: true }))}
-                  style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', display: 'block' }} />
-              )}
-            </a>
-            <span style={{ textAlign: 'center', fontSize: '0.62rem', color: 'var(--muted)', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-              {LABELS[i]}
-            </span>
+    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--r2)', overflow: 'hidden' }}>
+      <div style={{ position: 'relative' }}>
+        <img
+          src={`https://img.youtube.com/vi/${id}/maxresdefault.jpg`}
+          alt={exerciseName}
+          onError={(e) => {
+            if (e.target.src.includes('maxresdefault')) {
+              e.target.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+            } else if (idx < candidates.length - 1) {
+              setIdx(i => i + 1)
+            }
+          }}
+          style={{ width: '100%', display: 'block', objectFit: 'cover' }}
+        />
+        <a href={`https://www.youtube.com/watch?v=${id}`} target="_blank" rel="noopener noreferrer"
+          style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.25)', textDecoration: 'none' }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.6)' }}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7 4l12 6-12 6V4z" fill="white"/></svg>
           </div>
-        ))}
+        </a>
       </div>
       <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent('sergio orduz ' + exerciseName)}`}
         target="_blank" rel="noopener noreferrer"
-        style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '9px 12px', borderRadius: '10px', background: 'rgba(255,0,0,0.08)', border: '1px solid rgba(255,0,0,0.15)', textDecoration: 'none' }}>
+        style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', textDecoration: 'none', borderTop: '1px solid var(--border)' }}>
         <div style={{ background: '#FF0000', borderRadius: '4px', width: 26, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <svg width="9" height="8" viewBox="0 0 9 8" fill="white"><path d="M3.5 6V2l4 2-4 2z"/></svg>
         </div>
-        <span style={{ fontSize: '0.78rem', color: 'var(--text2)', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600 }}>
-          Buscar en YouTube: @sergioorduz
+        <span style={{ fontSize: '0.8rem', color: 'var(--text2)', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600 }}>
+          Ver en YouTube — @sergioorduz ↗
         </span>
       </a>
     </div>
