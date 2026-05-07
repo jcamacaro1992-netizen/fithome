@@ -12,14 +12,13 @@ REGLAS ESTRICTAS:
 - Cabeza: <circle r="10" fill="none" stroke="#4589FF" stroke-width="2.8"/>
 - Si el ejercicio usa barra: stroke="#6B7280" stroke-width="5" stroke-linecap="round"
 - Si el ejercicio usa mancuernas: rectángulos pequeños stroke="#6B7280" fill="#374151"
-- Flecha indicando dirección de movimiento: stroke="#F97316" stroke-width="2" stroke-dasharray="4,3" marker-end si es posible
+- Flecha indicando dirección de movimiento: stroke="#F97316" stroke-width="2" stroke-dasharray="4,3"
 - La figura debe ocupar al menos el 75% del viewBox, centrada
-- Sin texto, sin etiquetas title, sin desc, sin comentarios XML
+- Sin texto, sin title, sin desc, sin comentarios XML
 - Responde ÚNICAMENTE con el XML SVG comenzando con <svg y terminando con </svg>`
 }
 
-export default async function handler(req, res) {
-  // CORS for same-origin Vercel
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
@@ -27,7 +26,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { exerciseName, phaseIdx } = req.body ?? {}
+  const { exerciseName, phaseIdx } = req.body || {}
   if (!exerciseName || phaseIdx === undefined || phaseIdx < 0 || phaseIdx > 2) {
     return res.status(400).json({ error: 'Invalid parameters' })
   }
@@ -54,7 +53,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const err = await response.text()
-      console.error('Anthropic API error:', err)
+      console.error('Anthropic error:', response.status, err)
       return res.status(502).json({ error: 'Upstream API error' })
     }
 
@@ -63,9 +62,7 @@ export default async function handler(req, res) {
     const match = raw.match(/<svg[\s\S]*?<\/svg>/i)
     const svgData = match ? match[0] : null
 
-    if (!svgData) {
-      return res.status(422).json({ error: 'No SVG in response' })
-    }
+    if (!svgData) return res.status(422).json({ error: 'No SVG in response' })
 
     return res.status(200).json({ svg: svgData })
   } catch (err) {
