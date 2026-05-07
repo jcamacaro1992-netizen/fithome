@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
 import { DAYS } from '../data/exercises'
@@ -8,15 +8,24 @@ import RestDay from '../components/RestDay'
 const JS_DAY_TO_IDX = [6, 0, 1, 2, 3, 4, 5]
 
 const FOCUS_COLORS = {
-  'Empuje superior': { color: '#FF6B2B', bg: 'rgba(255,107,43,0.1)' },
-  'Tirón + Bíceps':  { color: '#4C9EFF', bg: 'rgba(76,158,255,0.1)' },
-  'Piernas + Glúteos': { color: '#F5C518', bg: 'rgba(245,197,24,0.1)' },
-  'Movilidad activa': { color: '#A78BFA', bg: 'rgba(167,139,250,0.1)' },
-  'Fuerza total':    { color: '#C6F135', bg: 'rgba(198,241,53,0.1)' },
-  'Descanso total':  { color: '#A78BFA', bg: 'rgba(167,139,250,0.1)' },
+  'Empuje superior':   { color: '#FF6B2B', bg: 'rgba(255,107,43,0.08)' },
+  'Tirón + Bíceps':    { color: '#4C9EFF', bg: 'rgba(76,158,255,0.08)' },
+  'Piernas + Glúteos': { color: '#F5C518', bg: 'rgba(245,197,24,0.08)' },
+  'Movilidad activa':  { color: '#A78BFA', bg: 'rgba(167,139,250,0.08)' },
+  'Fuerza total':      { color: '#C6F135', bg: 'rgba(198,241,53,0.08)' },
+  'Descanso total':    { color: '#A78BFA', bg: 'rgba(167,139,250,0.08)' },
 }
 
-function ProgressRing({ value, size = 44, stroke = 3.5 }) {
+const FILTERS = ['Todos', 'Barra', 'Mancuerna', 'Corporal']
+
+function getEquipment(name) {
+  const n = name.toLowerCase()
+  if (n.includes('barra')) return 'Barra'
+  if (n.includes('mancuerna')) return 'Mancuerna'
+  return 'Corporal'
+}
+
+function ProgressRing({ value, size = 46, stroke = 3.5 }) {
   const r = (size - stroke * 2) / 2
   const circ = 2 * Math.PI * r
   const pct = Math.min(1, Math.max(0, value))
@@ -43,22 +52,30 @@ export default function HomeScreen() {
   const todayIdx = JS_DAY_TO_IDX[jsDay]
   const [selectedIdx, setSelectedIdx] = useState(todayIdx)
   const [expandedEx, setExpandedEx] = useState(null)
+  const [filter, setFilter] = useState('Todos')
 
   const day = DAYS[selectedIdx]
+  const isToday = selectedIdx === todayIdx
+  const focusTheme = FOCUS_COLORS[day.focus] ?? { color: 'var(--accent)', bg: 'var(--accent-dim)' }
+
+  const filteredExercises = useMemo(() => {
+    if (filter === 'Todos') return day.exercises.map((ex, i) => ({ ex, origIdx: i }))
+    return day.exercises
+      .map((ex, i) => ({ ex, origIdx: i }))
+      .filter(({ ex }) => getEquipment(ex.name) === filter)
+  }, [day.exercises, filter])
+
   const doneCount = day.exercises.filter((_, i) => isDone(selectedIdx, i)).length
   const totalCount = day.exercises.length
   const progress = totalCount > 0 ? doneCount / totalCount : 0
   const allDone = totalCount > 0 && doneCount === totalCount
-  const isToday = selectedIdx === todayIdx
-
-  const focusTheme = FOCUS_COLORS[day.focus] ?? { color: 'var(--accent)', bg: 'var(--accent-dim)' }
 
   const today = new Date()
   const dayName = today.toLocaleDateString('es-ES', { weekday: 'long' })
   const dateLabel = today.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })
 
-  function handleExpand(i) {
-    setExpandedEx(prev => prev === i ? null : i)
+  function handleExpand(origIdx) {
+    setExpandedEx(prev => prev === origIdx ? null : origIdx)
   }
 
   return (
@@ -70,10 +87,7 @@ export default function HomeScreen() {
         borderBottom: '1px solid var(--border)',
       }}>
         {/* Top row */}
-        <div style={{
-          padding: '16px 16px 12px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-        }}>
+        <div style={{ padding: '16px 16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <div style={{
               fontFamily: "'Barlow Condensed', sans-serif",
@@ -86,22 +100,20 @@ export default function HomeScreen() {
               marginTop: '3px',
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 500, fontSize: '0.78rem',
-              letterSpacing: '0.04em',
-              color: 'var(--muted)',
+              letterSpacing: '0.04em', color: 'var(--muted)',
               textTransform: 'capitalize'
             }}>
               {dayName} · {dateLabel}
             </div>
           </div>
 
-          {/* Progress ring for selected day */}
           {!day.rest && (
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ProgressRing value={progress} size={46} stroke={3.5} />
               <span style={{
                 position: 'absolute',
                 fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 800, fontSize: '0.75rem',
+                fontWeight: 800, fontSize: '0.7rem',
                 color: allDone ? 'var(--success)' : 'var(--accent)'
               }}>
                 {doneCount}/{totalCount}
@@ -113,7 +125,7 @@ export default function HomeScreen() {
         {/* Day chips */}
         <div style={{
           display: 'flex', gap: '4px',
-          padding: '0 12px 12px',
+          padding: '0 12px 10px',
           overflowX: 'auto', scrollbarWidth: 'none'
         }}>
           {DAYS.map((d, i) => {
@@ -123,17 +135,14 @@ export default function HomeScreen() {
             const done = prog >= 1 && d.exercises.length > 0
 
             return (
-              <button
-                key={i}
-                onClick={() => { setSelectedIdx(i); setExpandedEx(null) }}
+              <button key={i}
+                onClick={() => { setSelectedIdx(i); setExpandedEx(null); setFilter('Todos') }}
                 style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px',
-                  padding: '7px 11px',
-                  borderRadius: '12px',
+                  padding: '7px 11px', borderRadius: '12px', minWidth: '42px',
                   border: active ? '1.5px solid var(--accent)' : '1.5px solid transparent',
                   background: active ? 'var(--accent-dim)' : isTodayChip ? 'rgba(255,255,255,0.04)' : 'transparent',
-                  cursor: 'pointer', minWidth: '42px',
-                  transition: 'all 0.15s'
+                  cursor: 'pointer', transition: 'all 0.15s'
                 }}
               >
                 <span style={{
@@ -152,6 +161,32 @@ export default function HomeScreen() {
             )
           })}
         </div>
+
+        {/* Equipment filter (only for training days) */}
+        {!day.rest && day.exercises.length > 0 && (
+          <div style={{
+            display: 'flex', gap: '6px',
+            padding: '0 12px 12px',
+            overflowX: 'auto', scrollbarWidth: 'none'
+          }}>
+            {FILTERS.map(f => (
+              <button key={f} onClick={() => setFilter(f)}
+                style={{
+                  padding: '5px 12px', borderRadius: '20px',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700, fontSize: '0.75rem',
+                  letterSpacing: '0.05em', textTransform: 'uppercase',
+                  cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
+                  border: filter === f ? '1.5px solid var(--accent)' : '1.5px solid var(--border2)',
+                  background: filter === f ? 'var(--accent-dim)' : 'transparent',
+                  color: filter === f ? 'var(--accent)' : 'var(--muted)'
+                }}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── Content ── */}
@@ -160,16 +195,16 @@ export default function HomeScreen() {
         {/* Day summary card */}
         <div style={{
           background: focusTheme.bg,
-          border: `1px solid ${focusTheme.color}22`,
+          border: `1px solid ${focusTheme.color}20`,
           borderRadius: 'var(--r2)',
           padding: '12px 14px',
           display: 'flex', alignItems: 'center', gap: '12px'
         }}>
           <div style={{
-            width: 36, height: 36, borderRadius: '10px',
+            width: 36, height: 36, borderRadius: '10px', flexShrink: 0,
             background: `${focusTheme.color}18`,
             border: `1px solid ${focusTheme.color}30`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}>
             <span style={{
               fontFamily: "'Barlow Condensed', sans-serif",
@@ -187,7 +222,7 @@ export default function HomeScreen() {
               {day.focus}
             </div>
             <div style={{
-              fontSize: '0.74rem', color: 'var(--muted)', marginTop: '3px',
+              fontSize: '0.73rem', color: 'var(--muted)', marginTop: '3px',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
             }}>
               {day.note}
@@ -196,7 +231,7 @@ export default function HomeScreen() {
           {!day.rest && isToday && (
             <span style={{
               fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 700, fontSize: '0.68rem',
+              fontWeight: 700, fontSize: '0.67rem',
               letterSpacing: '0.06em', textTransform: 'uppercase',
               color: focusTheme.color,
               background: `${focusTheme.color}18`,
@@ -219,10 +254,10 @@ export default function HomeScreen() {
             display: 'flex', alignItems: 'center', gap: '10px'
           }}>
             <div style={{
-              width: 28, height: 28, borderRadius: '50%',
+              width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
               background: 'rgba(31,209,106,0.15)',
               border: '1.5px solid #1FD16A',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}>
               <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
                 <path d="M1 5l3.5 3.5L12 1" stroke="#1FD16A" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -232,9 +267,21 @@ export default function HomeScreen() {
               <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.92rem', color: 'var(--success)' }}>
                 ¡Día completado!
               </div>
-              <div style={{ fontSize: '0.74rem', color: 'var(--muted)' }}>
-                Excelente trabajo. A descansar.
-              </div>
+              <div style={{ fontSize: '0.73rem', color: 'var(--muted)' }}>Excelente trabajo. A descansar.</div>
+            </div>
+          </div>
+        )}
+
+        {/* No results for filter */}
+        {!day.rest && filteredExercises.length === 0 && (
+          <div style={{
+            padding: '24px 16px', textAlign: 'center',
+            background: 'var(--card)', borderRadius: 'var(--r2)',
+            border: '1px solid var(--border)'
+          }}>
+            <div style={{ fontSize: '1.4rem', marginBottom: '8px' }}>🔍</div>
+            <div style={{ fontSize: '0.84rem', color: 'var(--muted)' }}>
+              No hay ejercicios de tipo <strong style={{ color: 'var(--text2)' }}>{filter}</strong> hoy
             </div>
           </div>
         )}
@@ -244,16 +291,16 @@ export default function HomeScreen() {
           <RestDay dayName={day.name} note={day.note} />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-            {day.exercises.map((ex, i) => (
+            {filteredExercises.map(({ ex, origIdx }) => (
               <ExerciseRow
-                key={i}
+                key={origIdx}
                 exercise={ex}
                 dayIdx={selectedIdx}
-                exIdx={i}
-                done={isDone(selectedIdx, i)}
+                exIdx={origIdx}
+                done={isDone(selectedIdx, origIdx)}
                 onToggle={toggle}
-                expanded={expandedEx === i}
-                onExpand={() => handleExpand(i)}
+                expanded={expandedEx === origIdx}
+                onExpand={() => handleExpand(origIdx)}
               />
             ))}
           </div>
