@@ -3,37 +3,22 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
 import { DAYS, getBadgeClass } from '../data/exercises'
-import { getVideoData } from '../data/videos'
+import { getExerciseImage } from '../data/exerciseImages'
 import NavHeader from '../components/NavHeader'
 import AutoVideoPlayer from '../components/AutoVideoPlayer'
 
 function ReferenceImages({ exerciseName }) {
-  const { candidates } = getVideoData(exerciseName)
-  const [idx, setIdx] = useState(0)
-  const id = candidates[idx]
-  if (!id) return null
+  const imgSrc = getExerciseImage(exerciseName)
+  const [failed, setFailed] = useState(false)
+  if (!imgSrc || failed) return null
   return (
     <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--r2)', overflow: 'hidden' }}>
-      <div style={{ position: 'relative' }}>
-        <img
-          src={`https://img.youtube.com/vi/${id}/maxresdefault.jpg`}
-          alt={exerciseName}
-          onError={(e) => {
-            if (e.target.src.includes('maxresdefault')) {
-              e.target.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`
-            } else if (idx < candidates.length - 1) {
-              setIdx(i => i + 1)
-            }
-          }}
-          style={{ width: '100%', display: 'block', objectFit: 'cover' }}
-        />
-        <a href={`https://www.youtube.com/watch?v=${id}`} target="_blank" rel="noopener noreferrer"
-          style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.25)', textDecoration: 'none' }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.6)' }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7 4l12 6-12 6V4z" fill="white"/></svg>
-          </div>
-        </a>
-      </div>
+      <img
+        src={imgSrc}
+        alt={exerciseName}
+        onError={() => setFailed(true)}
+        style={{ width: '100%', display: 'block', objectFit: 'contain', maxHeight: '300px', background: 'var(--card2)' }}
+      />
       <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent('sergio orduz ' + exerciseName)}`}
         target="_blank" rel="noopener noreferrer"
         style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', textDecoration: 'none', borderTop: '1px solid var(--border)' }}>

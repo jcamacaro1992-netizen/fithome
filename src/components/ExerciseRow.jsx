@@ -3,6 +3,7 @@ import { useAutoVideo } from '../hooks/useAutoVideo'
 import { useSetTracking } from '../hooks/useSetTracking'
 import { getBadgeClass } from '../data/exercises'
 import { getVideoData } from '../data/videos'
+import { getExerciseImage } from '../data/exerciseImages'
 import AutoVideoPlayer from './AutoVideoPlayer'
 
 const BADGE_COLOR = {
@@ -164,13 +165,14 @@ function SetRow({ num, set, isTimed, isBodyweight, onAdj, onToggle }) {
   )
 }
 
-/* ── Exercise reference image (YouTube thumbnail, shown only when no video) ── */
+/* ── Exercise reference image (curated, shown only when no video) ── */
 function ReferenceImage({ exerciseName }) {
-  const { candidates, query } = getVideoData(exerciseName)
-  const [idx, setIdx] = useState(0)
+  const imgSrc = getExerciseImage(exerciseName)
+  const [failed, setFailed] = useState(false)
 
-  const id = candidates[idx]
-  if (!id) return null
+  if (!imgSrc || failed) return null
+
+  const ytSearch = `https://www.youtube.com/results?search_query=${encodeURIComponent('sergio orduz ' + exerciseName)}`
 
   return (
     <div>
@@ -183,51 +185,21 @@ function ReferenceImage({ exerciseName }) {
         Referencia del ejercicio
       </span>
 
-      {/* Main image */}
       <div style={{
         borderRadius: '12px', overflow: 'hidden',
         border: '1px solid var(--border)',
-        background: 'var(--bg)', position: 'relative'
+        background: 'var(--card2)'
       }}>
         <img
-          src={`https://img.youtube.com/vi/${id}/maxresdefault.jpg`}
+          src={imgSrc}
           alt={exerciseName}
-          onError={(e) => {
-            // Try hqdefault if maxres fails, then next candidate
-            if (e.target.src.includes('maxresdefault')) {
-              e.target.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`
-            } else if (idx < candidates.length - 1) {
-              setIdx(i => i + 1)
-            }
-          }}
-          style={{ width: '100%', display: 'block', objectFit: 'cover' }}
+          onError={() => setFailed(true)}
+          style={{ width: '100%', display: 'block', objectFit: 'contain', maxHeight: '260px' }}
         />
-        {/* Play overlay */}
-        <a
-          href={`https://www.youtube.com/watch?v=${id}`}
-          target="_blank" rel="noopener noreferrer"
-          style={{
-            position: 'absolute', inset: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(0,0,0,0.25)', textDecoration: 'none'
-          }}
-        >
-          <div style={{
-            width: 48, height: 48, borderRadius: '50%',
-            background: 'rgba(0,0,0,0.65)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '2px solid rgba(255,255,255,0.6)'
-          }}>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M6 4l10 5-10 5V4z" fill="white"/>
-            </svg>
-          </div>
-        </a>
       </div>
 
-      {/* YouTube link */}
       <a
-        href={`https://www.youtube.com/results?search_query=${encodeURIComponent('sergio orduz ' + exerciseName)}`}
+        href={ytSearch}
         target="_blank" rel="noopener noreferrer"
         style={{
           display: 'flex', alignItems: 'center', gap: '7px', marginTop: '8px',
