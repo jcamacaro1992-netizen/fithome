@@ -6,9 +6,12 @@ const TABS = [
     label: 'Hoy',
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <rect x="3" y="5" width="16" height="14" rx="3" stroke={active ? '#C6F135' : '#B0B2BA'} strokeWidth="1.7"/>
-        <path d="M7 3v4M15 3v4M3 10h16" stroke={active ? '#C6F135' : '#B0B2BA'} strokeWidth="1.7" strokeLinecap="round"/>
-        <rect x="7" y="13" width="3" height="3" rx="1" fill={active ? '#C6F135' : '#B0B2BA'}/>
+        <rect x="3" y="5" width="16" height="14" rx="3"
+          stroke={active ? '#0C0D0F' : '#B0B2BA'} strokeWidth="1.7"/>
+        <path d="M7 3v4M15 3v4M3 10h16"
+          stroke={active ? '#0C0D0F' : '#B0B2BA'} strokeWidth="1.7" strokeLinecap="round"/>
+        <rect x="7" y="13" width="3" height="3" rx="1"
+          fill={active ? '#0C0D0F' : '#B0B2BA'}/>
       </svg>
     )
   },
@@ -17,7 +20,8 @@ const TABS = [
     label: 'Semana',
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <path d="M4 6h14M4 11h14M4 16h9" stroke={active ? '#C6F135' : '#B0B2BA'} strokeWidth="1.7" strokeLinecap="round"/>
+        <path d="M4 6h14M4 11h14M4 16h9"
+          stroke={active ? '#0C0D0F' : '#B0B2BA'} strokeWidth="1.7" strokeLinecap="round"/>
       </svg>
     )
   },
@@ -26,9 +30,10 @@ const TABS = [
     label: 'Ajustes',
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <circle cx="11" cy="11" r="3" stroke={active ? '#C6F135' : '#B0B2BA'} strokeWidth="1.7"/>
+        <circle cx="11" cy="11" r="3"
+          stroke={active ? '#0C0D0F' : '#B0B2BA'} strokeWidth="1.7"/>
         <path d="M11 3v2M11 17v2M3 11h2M17 11h2M5.64 5.64l1.42 1.42M14.94 14.94l1.42 1.42M5.64 16.36l1.42-1.42M14.94 7.06l1.42-1.42"
-          stroke={active ? '#C6F135' : '#B0B2BA'} strokeWidth="1.7" strokeLinecap="round"/>
+          stroke={active ? '#0C0D0F' : '#B0B2BA'} strokeWidth="1.7" strokeLinecap="round"/>
       </svg>
     )
   }
@@ -40,10 +45,10 @@ export default function TabBar() {
 
   return (
     <div style={{
-      display: 'flex',
-      borderTop: '1px solid var(--border)',
       background: 'var(--bg2)',
-      paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+      borderTop: '1px solid var(--border)',
+      paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      display: 'flex'
     }}>
       {TABS.map(tab => {
         const active = location.pathname === tab.path
@@ -53,26 +58,35 @@ export default function TabBar() {
             onClick={() => navigate(tab.path)}
             style={{
               flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              padding: '10px 8px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'opacity 0.15s'
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              gap: '4px', padding: '10px 8px',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              position: 'relative'
             }}
           >
-            {tab.icon(active)}
+            {/* Active pill behind icon */}
+            {active && (
+              <div style={{
+                position: 'absolute',
+                top: '8px',
+                width: 42, height: 30,
+                borderRadius: '10px',
+                background: 'var(--accent)',
+                transition: 'all 0.2s'
+              }} />
+            )}
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              {tab.icon(active)}
+            </div>
             <span style={{
-              fontSize: '0.65rem',
+              fontSize: '0.62rem',
               fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 600,
+              fontWeight: 700,
               letterSpacing: '0.05em',
               textTransform: 'uppercase',
-              color: active ? 'var(--accent)' : 'var(--muted)'
+              color: active ? 'var(--accent)' : 'var(--muted)',
+              position: 'relative', zIndex: 1
             }}>
               {tab.label}
             </span>
