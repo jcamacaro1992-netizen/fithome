@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
 import { DAYS } from '../data/exercises'
@@ -14,15 +14,6 @@ const FOCUS_COLORS = {
   'Movilidad activa':  { color: '#A78BFA', bg: 'rgba(167,139,250,0.08)' },
   'Fuerza total':      { color: '#C6F135', bg: 'rgba(198,241,53,0.08)' },
   'Descanso total':    { color: '#A78BFA', bg: 'rgba(167,139,250,0.08)' },
-}
-
-const FILTERS = ['Todos', 'Barra', 'Mancuerna', 'Corporal']
-
-function getEquipment(name) {
-  const n = name.toLowerCase()
-  if (n.includes('barra')) return 'Barra'
-  if (n.includes('mancuerna')) return 'Mancuerna'
-  return 'Corporal'
 }
 
 function ProgressRing({ value, size = 46, stroke = 3.5 }) {
@@ -52,18 +43,10 @@ export default function HomeScreen() {
   const todayIdx = JS_DAY_TO_IDX[jsDay]
   const [selectedIdx, setSelectedIdx] = useState(todayIdx)
   const [expandedEx, setExpandedEx] = useState(null)
-  const [filter, setFilter] = useState('Todos')
 
   const day = DAYS[selectedIdx]
   const isToday = selectedIdx === todayIdx
   const focusTheme = FOCUS_COLORS[day.focus] ?? { color: 'var(--accent)', bg: 'var(--accent-dim)' }
-
-  const filteredExercises = useMemo(() => {
-    if (filter === 'Todos') return day.exercises.map((ex, i) => ({ ex, origIdx: i }))
-    return day.exercises
-      .map((ex, i) => ({ ex, origIdx: i }))
-      .filter(({ ex }) => getEquipment(ex.name) === filter)
-  }, [day.exercises, filter])
 
   const doneCount = day.exercises.filter((_, i) => isDone(selectedIdx, i)).length
   const totalCount = day.exercises.length
@@ -74,8 +57,8 @@ export default function HomeScreen() {
   const dayName = today.toLocaleDateString('es-ES', { weekday: 'long' })
   const dateLabel = today.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })
 
-  function handleExpand(origIdx) {
-    setExpandedEx(prev => prev === origIdx ? null : origIdx)
+  function handleExpand(i) {
+    setExpandedEx(prev => prev === i ? null : i)
   }
 
   return (
@@ -125,7 +108,7 @@ export default function HomeScreen() {
         {/* Day chips */}
         <div style={{
           display: 'flex', gap: '4px',
-          padding: '0 12px 10px',
+          padding: '0 12px 12px',
           overflowX: 'auto', scrollbarWidth: 'none'
         }}>
           {DAYS.map((d, i) => {
@@ -136,7 +119,7 @@ export default function HomeScreen() {
 
             return (
               <button key={i}
-                onClick={() => { setSelectedIdx(i); setExpandedEx(null); setFilter('Todos') }}
+                onClick={() => { setSelectedIdx(i); setExpandedEx(null) }}
                 style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px',
                   padding: '7px 11px', borderRadius: '12px', minWidth: '42px',
@@ -161,32 +144,6 @@ export default function HomeScreen() {
             )
           })}
         </div>
-
-        {/* Equipment filter (only for training days) */}
-        {!day.rest && day.exercises.length > 0 && (
-          <div style={{
-            display: 'flex', gap: '6px',
-            padding: '0 12px 12px',
-            overflowX: 'auto', scrollbarWidth: 'none'
-          }}>
-            {FILTERS.map(f => (
-              <button key={f} onClick={() => setFilter(f)}
-                style={{
-                  padding: '5px 12px', borderRadius: '20px',
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 700, fontSize: '0.75rem',
-                  letterSpacing: '0.05em', textTransform: 'uppercase',
-                  cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
-                  border: filter === f ? '1.5px solid var(--accent)' : '1.5px solid var(--border2)',
-                  background: filter === f ? 'var(--accent-dim)' : 'transparent',
-                  color: filter === f ? 'var(--accent)' : 'var(--muted)'
-                }}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* ── Content ── */}
@@ -272,35 +229,21 @@ export default function HomeScreen() {
           </div>
         )}
 
-        {/* No results for filter */}
-        {!day.rest && filteredExercises.length === 0 && (
-          <div style={{
-            padding: '24px 16px', textAlign: 'center',
-            background: 'var(--card)', borderRadius: 'var(--r2)',
-            border: '1px solid var(--border)'
-          }}>
-            <div style={{ fontSize: '1.4rem', marginBottom: '8px' }}>🔍</div>
-            <div style={{ fontSize: '0.84rem', color: 'var(--muted)' }}>
-              No hay ejercicios de tipo <strong style={{ color: 'var(--text2)' }}>{filter}</strong> hoy
-            </div>
-          </div>
-        )}
-
         {/* Exercises or rest */}
         {day.rest ? (
           <RestDay dayName={day.name} note={day.note} />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-            {filteredExercises.map(({ ex, origIdx }) => (
+            {day.exercises.map((ex, i) => (
               <ExerciseRow
-                key={origIdx}
+                key={i}
                 exercise={ex}
                 dayIdx={selectedIdx}
-                exIdx={origIdx}
-                done={isDone(selectedIdx, origIdx)}
+                exIdx={i}
+                done={isDone(selectedIdx, i)}
                 onToggle={toggle}
-                expanded={expandedEx === origIdx}
-                onExpand={() => handleExpand(origIdx)}
+                expanded={expandedEx === i}
+                onExpand={() => handleExpand(i)}
               />
             ))}
           </div>
