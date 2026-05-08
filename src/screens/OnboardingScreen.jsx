@@ -2,9 +2,9 @@ const SLIDES = [
   {
     icon: (
       <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-        <circle cx="28" cy="28" r="26" stroke="#C6F135" strokeWidth="2" opacity="0.2"/>
-        <path d="M28 12C28 12 14 20 14 31C14 38.732 20.268 45 28 45C35.732 45 42 38.732 42 31C42 20 28 12 28 12Z" stroke="#C6F135" strokeWidth="2.5" fill="none"/>
-        <path d="M21 33L25.5 28.5L29.5 32.5L36 25" stroke="#C6F135" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="28" cy="28" r="26" stroke="var(--accent)" strokeWidth="2" opacity="0.2"/>
+        <path d="M28 12C28 12 14 20 14 31C14 38.732 20.268 45 28 45C35.732 45 42 38.732 42 31C42 20 28 12 28 12Z" stroke="var(--accent)" strokeWidth="2.5" fill="none"/>
+        <path d="M21 33L25.5 28.5L29.5 32.5L36 25" stroke="var(--accent)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
     title: 'Bienvenido a FitHome',
@@ -13,26 +13,26 @@ const SLIDES = [
   {
     icon: (
       <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-        <circle cx="28" cy="28" r="26" stroke="#C6F135" strokeWidth="2" opacity="0.2"/>
-        <rect x="14" y="20" width="28" height="22" rx="4" stroke="#C6F135" strokeWidth="2.2"/>
-        <path d="M20 17v6M36 17v6M14 30h28" stroke="#C6F135" strokeWidth="2.2" strokeLinecap="round"/>
-        <rect x="20" y="36" width="5" height="5" rx="1.5" fill="#C6F135"/>
+        <circle cx="28" cy="28" r="26" stroke="var(--accent)" strokeWidth="2" opacity="0.2"/>
+        <rect x="14" y="20" width="28" height="22" rx="4" stroke="var(--accent)" strokeWidth="2.2"/>
+        <path d="M20 17v6M36 17v6M14 30h28" stroke="var(--accent)" strokeWidth="2.2" strokeLinecap="round"/>
+        <rect x="20" y="36" width="5" height="5" rx="1.5" fill="var(--accent)"/>
       </svg>
     ),
-    title: 'Mar – Sáb activos',
-    body: 'Empuje, tirón, piernas, movilidad y fuerza total. Lunes y domingo descanso completo.'
+    title: 'Lun–Dom estructurado',
+    body: 'Pecho · Tríceps, Espalda · Bíceps, Piernas y días de descanso. Todo balanceado para maximizar la recuperación.'
   },
   {
     icon: (
       <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-        <circle cx="28" cy="28" r="26" stroke="#C6F135" strokeWidth="2" opacity="0.2"/>
-        <rect x="16" y="20" width="24" height="16" rx="3" stroke="#4C9EFF" strokeWidth="2"/>
-        <path d="M24 28l-2 6h12l-2-6" stroke="#C6F135" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="28" cy="36" r="2" fill="#1FD16A"/>
+        <circle cx="28" cy="28" r="26" stroke="var(--accent)" strokeWidth="2" opacity="0.2"/>
+        <rect x="16" y="18" width="24" height="15" rx="3" stroke="var(--accent)" strokeWidth="2"/>
+        <path d="M22 33v5M34 33v5M19 38h18" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M23 25l3 3 5-5" stroke="#22C55E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
-    title: 'Videos + Ilustraciones IA',
-    body: 'Añade videos de YouTube a cada ejercicio. Sin video, genera ilustraciones con tu API key de Anthropic.'
+    title: 'Registra cada serie',
+    body: 'Marca tus series, ajusta peso y repeticiones, ve tus videos tutoriales y sigue tu progreso semana a semana.'
   }
 ]
 

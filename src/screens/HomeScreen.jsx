@@ -2,17 +2,11 @@ import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
 import { DAYS } from '../data/exercises'
+import { FOCUS_COLORS } from '../data/focusColors'
 import ExerciseRow from '../components/ExerciseRow'
 import RestDay from '../components/RestDay'
 
 const JS_DAY_TO_IDX = [6, 0, 1, 2, 3, 4, 5]
-
-const FOCUS_COLORS = {
-  'Pecho · Tríceps':              { color: '#F97316', bg: 'rgba(249,115,22,0.08)' },
-  'Espalda · Bíceps':             { color: '#4589FF', bg: 'rgba(69,137,255,0.08)' },
-  'Piernas · Trapecio · Antebrazos': { color: '#F59E0B', bg: 'rgba(245,158,11,0.08)' },
-  'Descanso total':               { color: '#A78BFA', bg: 'rgba(167,139,250,0.08)' },
-}
 
 function ProgressRing({ value, size = 46, stroke = 3.5 }) {
   const r = (size - stroke * 2) / 2

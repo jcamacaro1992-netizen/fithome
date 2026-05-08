@@ -6,25 +6,24 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',   // app se actualiza sola cuando hay nueva versión
+      registerType: 'autoUpdate',
       includeAssets: ['icons/favicon.svg', 'icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
         name: 'FitHome',
         short_name: 'FitHome',
-        description: 'Tu rutina de entrenamiento en casa',
+        description: 'Rutina de entrenamiento en casa con mancuernas y barra. Sin gimnasio, sin saltos.',
         start_url: '/',
         display: 'standalone',
         background_color: '#080D18',
         theme_color: '#080D18',
         orientation: 'portrait',
         icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
-        // Cache Supabase y Google APIs (network-first para datos frescos)
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
@@ -40,6 +39,16 @@ export default defineConfig({
             urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
             handler: 'CacheFirst',
             options: { cacheName: 'gstatic-fonts-cache' }
+          },
+          {
+            urlPattern: /^https:\/\/img\.youtube\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: { cacheName: 'yt-thumbnails', expiration: { maxEntries: 60, maxAgeSeconds: 86400 * 7 } }
+          },
+          {
+            urlPattern: /^https:\/\/upload\.wikimedia\.org\/.*/i,
+            handler: 'CacheFirst',
+            options: { cacheName: 'exercise-images', expiration: { maxEntries: 60, maxAgeSeconds: 86400 * 30 } }
           }
         ]
       }

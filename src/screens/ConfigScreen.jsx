@@ -24,28 +24,28 @@ function Section({ title, children }) {
   )
 }
 
-function KeyField({ label, hint, placeholder, value, onChange, onSave, saved, danger = false }) {
+function Row({ icon, label, value, chevron }) {
   return (
-    <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
-      <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginBottom: '10px', lineHeight: 1.5 }}>
-        {hint}
-      </div>
-      <input
-        type="password"
-        className="input-field"
-        placeholder={placeholder}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        style={{ marginBottom: '10px' }}
-        autoComplete="off"
-      />
-      <button
-        className="btn-accent"
-        onClick={onSave}
-        style={{ background: saved ? 'var(--success)' : 'var(--accent)' }}
-      >
-        {saved ? '✓ Guardada' : `Guardar ${label}`}
-      </button>
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: '12px',
+      padding: '13px 16px', borderBottom: '1px solid var(--border)'
+    }}>
+      {icon && (
+        <div style={{
+          width: 32, height: 32, borderRadius: '9px', flexShrink: 0,
+          background: 'var(--card2)', border: '1px solid var(--border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          {icon}
+        </div>
+      )}
+      <span style={{ flex: 1, fontSize: '0.9rem', color: 'var(--text)', fontWeight: 500 }}>{label}</span>
+      {value && <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{value}</span>}
+      {chevron && (
+        <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ opacity: 0.25 }}>
+          <path d="M1 1L6 6L1 11" stroke="var(--text2)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
     </div>
   )
 }
@@ -54,30 +54,22 @@ export default function ConfigScreen() {
   const { user, signOut } = useAuth()
   const { clearToday } = useProgress(user)
 
-  const [anthropicKey, setAnthropicKey] = useState('')
-  const [anthropicSaved, setAnthropicSaved] = useState(false)
   const [googleKey, setGoogleKey] = useState('')
   const [googleSaved, setGoogleSaved] = useState(false)
   const [confirmClear, setConfirmClear] = useState(false)
   const [confirmClearVideos, setConfirmClearVideos] = useState(false)
   const [videoCacheCount, setVideoCacheCount] = useState(0)
 
+  const totalExercises = DAYS.flatMap(d => d.exercises).length
+
   useEffect(() => {
-    setAnthropicKey(localStorage.getItem('fithome_api_key') ?? '')
     setGoogleKey(localStorage.getItem('fithome_google_key') ?? '')
-    // Count how many videos are cached
     const count = DAYS.flatMap(d => d.exercises).filter(ex => {
       const k = `fithome_vid_${ex.name.toLowerCase().replace(/\s+/g, '_')}`
       return !!localStorage.getItem(k)
     }).length
     setVideoCacheCount(count)
   }, [])
-
-  function saveAnthropicKey() {
-    localStorage.setItem('fithome_api_key', anthropicKey.trim())
-    setAnthropicSaved(true)
-    setTimeout(() => setAnthropicSaved(false), 2000)
-  }
 
   function saveGoogleKey() {
     localStorage.setItem('fithome_google_key', googleKey.trim())
@@ -102,8 +94,6 @@ export default function ConfigScreen() {
     setConfirmClearVideos(false)
   }
 
-  const totalExercises = DAYS.flatMap(d => d.exercises).length
-  const anthHint = anthropicKey ? `sk-ant-…${anthropicKey.slice(-6)}` : 'No configurada'
   const googleHint = googleKey ? `AIza…${googleKey.slice(-6)}` : 'No configurada'
 
   return (
@@ -127,67 +117,58 @@ export default function ConfigScreen() {
 
         {/* ── Cuenta ── */}
         <Section title="Cuenta">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px' }}>
             <div style={{
-              width: 32, height: 32, borderRadius: '50%',
+              width: 40, height: 40, borderRadius: '50%',
               background: 'var(--accent-dim)', border: '1px solid var(--accent-glow)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
             }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="6" r="3" stroke="var(--accent)" strokeWidth="1.4"/>
-                <path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round"/>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <circle cx="9" cy="7" r="3.5" stroke="var(--accent)" strokeWidth="1.5"/>
+                <path d="M2.5 16c0-3.314 2.91-6 6.5-6s6.5 2.686 6.5 6" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
             <div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text)' }}>{user?.email ?? 'Usuario'}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Sesión activa</div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text)' }}>
+                {user?.email ?? 'Usuario'}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--success)', marginTop: '2px' }}>● Sesión activa</div>
             </div>
           </div>
         </Section>
 
-        {/* ── API Key Anthropic (ilustraciones automáticas) ── */}
-        <Section title="Ilustraciones automáticas · Anthropic">
-          <KeyField
-            label="API key"
-            hint="Las ilustraciones se generan automáticamente al abrir un ejercicio. Sin esta key se muestran en blanco."
-            placeholder="sk-ant-api03-..."
-            value={anthropicKey}
-            onChange={setAnthropicKey}
-            onSave={saveAnthropicKey}
-            saved={anthropicSaved}
-          />
-          <div style={{ padding: '10px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Estado: {anthHint}</span>
-            <a
-              href="https://console.anthropic.com/settings/keys"
-              target="_blank" rel="noopener noreferrer"
-              style={{ fontSize: '0.72rem', color: 'var(--accent)', textDecoration: 'none' }}
+        {/* ── Videos ── */}
+        <Section title="Videos · YouTube API">
+          <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
+            <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginBottom: '10px', lineHeight: 1.5 }}>
+              Permite buscar y reemplazar videos automáticamente cuando uno desaparece. Gratis: 100 búsquedas/día. Sin esta key se usan los candidatos pre-cargados.
+            </div>
+            <input
+              type="password"
+              className="input-field"
+              placeholder="AIzaSy..."
+              value={googleKey}
+              onChange={e => setGoogleKey(e.target.value)}
+              style={{ marginBottom: '10px' }}
+              autoComplete="off"
+            />
+            <button
+              className="btn-accent"
+              onClick={saveGoogleKey}
+              style={{ background: googleSaved ? 'var(--success)' : 'var(--accent)' }}
             >
-              Obtener key ↗
-            </a>
+              {googleSaved ? '✓ Guardada' : 'Guardar key'}
+            </button>
           </div>
-        </Section>
-
-        {/* ── API Key Google (videos automáticos) ── */}
-        <Section title="Videos automáticos · YouTube API">
-          <KeyField
-            label="Google key"
-            hint="Permite buscar y reemplazar videos automáticamente. Gratis: 100 búsquedas/día. Sin esta key se usan candidatos pre-cargados."
-            placeholder="AIzaSy..."
-            value={googleKey}
-            onChange={setGoogleKey}
-            onSave={saveGoogleKey}
-            saved={googleSaved}
-          />
           <div style={{ padding: '10px 16px 14px' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '6px' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '8px' }}>
               Estado: {googleHint}
             </div>
             <div style={{
               background: 'var(--card2)', borderRadius: '10px',
               padding: '10px 12px', border: '1px solid var(--border)'
             }}>
-              <div style={{ fontSize: '0.73rem', color: 'var(--text2)', lineHeight: 1.5, marginBottom: '6px', fontWeight: 600 }}>
+              <div style={{ fontSize: '0.73rem', fontWeight: 600, color: 'var(--text2)', marginBottom: '6px', lineHeight: 1.5 }}>
                 Cómo obtener la key gratis:
               </div>
               {[
@@ -203,23 +184,19 @@ export default function ConfigScreen() {
           </div>
         </Section>
 
-        {/* ── Estado del sistema automático ── */}
-        <Section title="Sistema automático · Estado">
+        {/* ── Estado de videos ── */}
+        <Section title="Caché de videos">
           <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '0.84rem', color: 'var(--text)' }}>Videos cacheados</span>
+              <span style={{ fontSize: '0.84rem', color: 'var(--text)' }}>Videos verificados</span>
               <span style={{
-                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
-                fontSize: '0.9rem',
+                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.9rem',
                 color: videoCacheCount === totalExercises ? 'var(--success)' : 'var(--accent)'
               }}>
                 {videoCacheCount} / {totalExercises}
               </span>
             </div>
-            <div style={{
-              height: 6, borderRadius: 3,
-              background: 'var(--border2)', overflow: 'hidden'
-            }}>
+            <div style={{ height: 5, borderRadius: 3, background: 'var(--border2)', overflow: 'hidden' }}>
               <div style={{
                 width: `${(videoCacheCount / totalExercises) * 100}%`,
                 height: '100%', borderRadius: 3,
@@ -228,18 +205,12 @@ export default function ConfigScreen() {
               }} />
             </div>
             <div style={{ fontSize: '0.73rem', color: 'var(--muted)', marginTop: '8px' }}>
-              Los videos se verifican una vez al día. Si uno desaparece, se reemplaza automáticamente.
+              Los videos se verifican una vez al día y se reemplazan automáticamente si uno deja de estar disponible.
             </div>
           </div>
-          <div
-            onClick={clearVideoCache}
-            style={{
-              padding: '12px 16px', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-            }}
-          >
+          <div onClick={clearVideoCache} style={{ padding: '12px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '0.84rem', color: confirmClearVideos ? 'var(--red)' : 'var(--text2)' }}>
-              {confirmClearVideos ? '¿Confirmar? Toca de nuevo' : 'Forzar re-búsqueda de todos los videos'}
+              {confirmClearVideos ? '¿Confirmar? Toca de nuevo' : 'Forzar re-búsqueda de videos'}
             </span>
             <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ opacity: 0.3 }}>
               <path d="M1 1L6 6L1 11" stroke="var(--text2)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
@@ -268,26 +239,21 @@ export default function ConfigScreen() {
 
         {/* ── Progreso ── */}
         <Section title="Progreso">
-          <div
-            onClick={handleClearToday}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '12px',
-              padding: '14px 16px', cursor: 'pointer',
-              borderBottom: '1px solid var(--border)'
-            }}
-          >
+          <div onClick={handleClearToday} style={{
+            display: 'flex', alignItems: 'center', gap: '12px',
+            padding: '14px 16px', cursor: 'pointer'
+          }}>
             <div style={{
               width: 32, height: 32, borderRadius: '9px',
-              background: 'rgba(255,69,69,0.1)',
-              border: '1px solid rgba(255,69,69,0.2)',
+              background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
             }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M2 4h12M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1M6 7v5M10 7v5M3 4l1 10h8l1-10"
-                  stroke="var(--red)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                <path d="M2 3.5h11M5 3.5V2.5a1 1 0 011-1h3a1 1 0 011 1v1M5.5 6.5v4M9.5 6.5v4M2.5 3.5l.9 9h8.2l.9-9"
+                  stroke="var(--red)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span style={{ fontSize: '0.9rem', color: confirmClear ? 'var(--red)' : 'var(--red)', fontWeight: 500 }}>
+            <span style={{ flex: 1, fontSize: '0.9rem', color: 'var(--red)', fontWeight: 500 }}>
               {confirmClear ? '¿Confirmar? Toca de nuevo' : 'Borrar progreso de hoy'}
             </span>
           </div>
@@ -296,9 +262,9 @@ export default function ConfigScreen() {
         {/* ── Acerca de ── */}
         <Section title="Acerca de">
           {[
-            ['FitHome', 'v0.1.0 · React + Vite + Supabase'],
-            ['Videos', 'YouTube Data API v3 · auto-replace'],
-            ['Ilustraciones', 'claude-sonnet-4-20250514 · auto-generate'],
+            ['FitHome', 'v1.0.0'],
+            ['Plataforma', 'React 18 · Vite · Supabase'],
+            ['Videos', 'YouTube · auto-verificación diaria'],
           ].map(([label, value], i) => (
             <div key={i} style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -314,7 +280,7 @@ export default function ConfigScreen() {
         <button
           onClick={signOut}
           className="btn-outline"
-          style={{ color: 'var(--red)', borderColor: 'rgba(255,69,69,0.3)' }}
+          style={{ color: 'var(--red)', borderColor: 'rgba(239,68,68,0.28)' }}
         >
           Cerrar sesión
         </button>

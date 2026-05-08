@@ -1,14 +1,8 @@
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
 import { DAYS, getBadgeClass } from '../data/exercises'
+import { FOCUS_COLORS } from '../data/focusColors'
 import { useNavigate } from 'react-router-dom'
-
-const FOCUS_COLORS = {
-  'Pecho · Tríceps':              '#F97316',
-  'Espalda · Bíceps':             '#4589FF',
-  'Piernas · Trapecio · Antebrazos': '#F59E0B',
-  'Descanso total':               '#A78BFA',
-}
 
 function ProgressArc({ value, size = 40, stroke = 3 }) {
   const r = (size - stroke * 2) / 2
@@ -77,7 +71,7 @@ export default function WeekScreen() {
         {DAYS.map((day, dIdx) => {
           const progress = dayProgress(dIdx, day.exercises.length)
           const doneCount = day.exercises.filter((_, i) => isDone(dIdx, i)).length
-          const accent = FOCUS_COLORS[day.focus] ?? 'var(--accent)'
+          const accent = FOCUS_COLORS[day.focus]?.color ?? 'var(--accent)'
           const allDone = day.exercises.length > 0 && doneCount === day.exercises.length
 
           return (

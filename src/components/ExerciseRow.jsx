@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAutoVideo } from '../hooks/useAutoVideo'
 import { useSetTracking } from '../hooks/useSetTracking'
 import { getBadgeClass } from '../data/exercises'
@@ -165,6 +165,93 @@ function SetRow({ num, set, isTimed, isBodyweight, onAdj, onToggle }) {
   )
 }
 
+/* ── Rest timer between sets ── */
+function RestTimer({ seconds, onDismiss }) {
+  const [remaining, setRemaining] = useState(seconds)
+
+  useEffect(() => {
+    if (remaining <= 0) {
+      navigator.vibrate?.([180, 80, 180])
+      const t = setTimeout(onDismiss, 2500)
+      return () => clearTimeout(t)
+    }
+    const t = setTimeout(() => setRemaining(r => r - 1), 1000)
+    return () => clearTimeout(t)
+  }, [remaining, onDismiss])
+
+  const pct   = remaining / seconds
+  const done  = remaining <= 0
+  const size  = 68
+  const stroke= 4
+  const r     = (size - stroke * 2) / 2
+  const circ  = 2 * Math.PI * r
+  const m     = Math.floor(remaining / 60)
+  const s     = remaining % 60
+
+  return (
+    <div style={{
+      background: 'var(--card2)', border: '1px solid var(--border)',
+      borderRadius: 'var(--r)', padding: '14px 16px',
+      display: 'flex', alignItems: 'center', gap: '14px'
+    }}>
+      {/* Ring */}
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)', flexShrink: 0 }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--border2)" strokeWidth={stroke}/>
+        <circle
+          cx={size/2} cy={size/2} r={r} fill="none"
+          stroke={done ? 'var(--success)' : 'var(--accent)'}
+          strokeWidth={stroke} strokeLinecap="round"
+          strokeDasharray={circ}
+          strokeDashoffset={circ * (1 - pct)}
+          style={{ transition: 'stroke-dashoffset 0.95s linear, stroke 0.3s' }}
+        />
+      </svg>
+
+      <div style={{ flex: 1 }}>
+        <div style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 800, fontSize: '1.6rem',
+          color: done ? 'var(--success)' : 'var(--text)', lineHeight: 1
+        }}>
+          {done ? '¡Listo!' : `${m}:${String(s).padStart(2, '0')}`}
+        </div>
+        <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: '3px' }}>
+          {done ? 'Continúa con la siguiente serie' : 'Descanso entre series'}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {!done && (
+          <button
+            onClick={() => setRemaining(r => r + 30)}
+            style={{
+              padding: '5px 10px', borderRadius: '8px',
+              background: 'var(--accent-dim)', border: '1px solid var(--accent-glow)',
+              color: 'var(--accent)',
+              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.75rem',
+              cursor: 'pointer', whiteSpace: 'nowrap'
+            }}
+          >
+            +30s
+          </button>
+        )}
+        <button
+          onClick={onDismiss}
+          style={{
+            padding: '5px 10px', borderRadius: '8px',
+            background: 'transparent', border: '1px solid var(--border2)',
+            color: 'var(--muted)',
+            fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: '0.75rem',
+            cursor: 'pointer'
+          }}
+        >
+          Saltar
+        </button>
+      </div>
+    </div>
+  )
+}
+
 /* ── Exercise reference image (shown only when no embeddable video found) ── */
 function ReferenceImage({ exerciseName }) {
   const { candidates } = getVideoData(exerciseName)
@@ -243,6 +330,13 @@ function ReferenceImage({ exerciseName }) {
   )
 }
 
+// Rest time: compound barbell lifts get 90s, isolation/bodyweight get 60s
+function restSeconds(exerciseName = '') {
+  const n = exerciseName.toLowerCase()
+  const isCompound = ['peso muerto', 'sentadilla', 'press militar', 'hip thrust', 'remo'].some(k => n.includes(k))
+  return isCompound ? 90 : 60
+}
+
 export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, expanded, onExpand }) {
   const { videoId, status: videoStatus } = useAutoVideo(exercise.name)
   const noVideo = videoStatus === 'none' || (!videoId && videoStatus !== 'loading' && videoStatus !== 'searching')
@@ -250,6 +344,9 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
 
   const accent = BADGE_COLOR[exercise.badge] ?? 'var(--accent)'
   const isVideoReady = videoStatus === 'ready' && videoId
+  const [showTimer, setShowTimer] = useState(false)
+  const [timerKey, setTimerKey] = useState(0)
+  const dismissTimer = useCallback(() => setShowTimer(false), [])
 
   function handleCheck(e) {
     e.stopPropagation()
@@ -258,7 +355,15 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
 
   function handleSetToggle(i) {
     markSet(i)
-    const willAllDone = done_sets === i + 1 ? i >= count : i + 1 >= count
+    const newDone = done_sets === i + 1 ? i : i + 1
+    const willAllDone = newDone >= count
+    // Show rest timer between sets (not after the last one)
+    if (newDone > 0 && !willAllDone) {
+      setTimerKey(k => k + 1)
+      setShowTimer(true)
+    } else {
+      setShowTimer(false)
+    }
     if (willAllDone && !done) onToggle(dayIdx, exIdx)
     else if (!willAllDone && done) onToggle(dayIdx, exIdx)
   }
@@ -454,6 +559,17 @@ export default function ExerciseRow({ exercise, dayIdx, exIdx, done, onToggle, e
               })}
             </div>
           </div>
+
+          {/* Rest timer */}
+          {showTimer && (
+            <div style={{ padding: '0 14px 12px' }}>
+              <RestTimer
+                key={timerKey}
+                seconds={restSeconds(exercise.name)}
+                onDismiss={dismissTimer}
+              />
+            </div>
+          )}
 
           {/* Video / Illustrations */}
           <div style={{ padding: '12px 14px', borderTop: '1px solid var(--border)' }}>
