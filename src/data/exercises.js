@@ -112,106 +112,108 @@ const ESPALDA_BICEPS = [
   }
 ]
 
+const PIERNAS_TRAPECIO_ANTEBRAZOS = [
+  {
+    name: 'Sentadilla frontal con barra', sets: '4×10 · 30 kg', badge: 'Piernas',
+    muscles: 'Cuádriceps · Glúteos · Core',
+    steps: [
+      'Barra apoyada en los deltoides frontales, codos altos. Pies a anchura de hombros.',
+      'Baja controlado hasta muslos paralelos al suelo. Torso completamente erguido.',
+      'Sube empujando el suelo sin inclinar el torso. Rodillas en línea con los pies.'
+    ]
+  },
+  {
+    name: 'Peso muerto con barra', sets: '4×5 · 40 kg', badge: 'Global',
+    muscles: 'Isquiotibiales · Glúteos · Erector espinal',
+    steps: [
+      'Barra frente a las espinillas. Agarre firme a anchura de caderas, espalda recta.',
+      'Empuja el suelo con los pies y extiende caderas. Barra pegada al cuerpo.',
+      'Baja controlado. Resetea posición entre reps si es necesario.'
+    ]
+  },
+  {
+    name: 'Hip thrust con barra', sets: '4×12 · 30 kg', badge: 'Glúteos',
+    muscles: 'Glúteo mayor y medio · Isquiotibiales',
+    steps: [
+      'Espalda apoyada en el sofá o cama, barra sobre caderas (con toalla).',
+      'Pies planos a anchura de caderas. Empuja las caderas hacia arriba.',
+      'Aprieta glúteos en la cima 1 seg. Baja controlado.'
+    ]
+  },
+  {
+    name: 'Zancada estática con mancuernas', sets: '3×10 c/lado · 15 kg c/u', badge: 'Piernas',
+    muscles: 'Glúteos · Cuádriceps · Isquiotibiales',
+    steps: [
+      'Posición de zancada fija. Mancuernas a los lados del cuerpo.',
+      'Baja la rodilla trasera hacia el suelo lentamente (3 seg).',
+      'Sube empujando con el pie delantero. Sin desplazarte. Cambia de pierna.'
+    ]
+  },
+  {
+    name: 'Encogimientos con barra', sets: '4×15 · 35 kg', badge: 'Trapecio',
+    muscles: 'Trapecio superior · Elevador de la escápula',
+    steps: [
+      'De pie, barra frente a los muslos con agarre prono a anchura de hombros.',
+      'Encoge los hombros hacia las orejas lo más arriba posible. Sin doblar los codos.',
+      'Baja lento en 2 seg. No gires los hombros — movimiento puramente vertical.'
+    ]
+  },
+  {
+    name: 'Curl de muñeca con barra', sets: '3×20 · 10 kg', badge: 'Antebrazos',
+    muscles: 'Flexores del antebrazo · Pronador redondo',
+    steps: [
+      'Sentado, antebrazo apoyado en el muslo con la barra en supinación (palma arriba).',
+      'Relaja la muñeca dejando caer la barra hacia abajo controlado.',
+      'Flexiona la muñeca subiendo la barra lo más alto posible. Pausa arriba.'
+    ]
+  },
+  {
+    name: 'Extensión de muñeca con barra', sets: '3×20 · 10 kg', badge: 'Antebrazos',
+    muscles: 'Extensores del antebrazo · Ancóneo',
+    steps: [
+      'Sentado, antebrazo apoyado en el muslo con la barra en pronación (palma abajo).',
+      'Deja caer la barra hacia abajo relajando la muñeca.',
+      'Extiende la muñeca subiendo el dorso de la mano lo más posible. Movimiento puro.'
+    ]
+  }
+]
+
 export const DAYS = [
   {
     label: 'Lun', name: 'Lunes',
-    focus: 'Pecho · Tríceps',
-    note: 'Día de empuje. Pecho completo y tríceps desde el suelo — sin impacto.',
-    exercises: PECHO_TRICEPS
-  },
-  {
-    label: 'Mar', name: 'Martes',
-    focus: 'Espalda · Bíceps',
-    note: 'Día de tirón. Espalda completa y bíceps con remos y curls.',
-    exercises: ESPALDA_BICEPS
-  },
-  {
-    label: 'Mié', name: 'Miércoles',
     focus: 'Descanso total', rest: true,
     note: 'Recuperación activa. Hidratación, estiramientos suaves y sueño.',
     exercises: []
   },
   {
-    label: 'Jue', name: 'Jueves',
+    label: 'Mar', name: 'Martes',
     focus: 'Pecho · Tríceps',
-    note: 'Segunda sesión de empuje. Aumenta el peso respecto al lunes si puedes.',
+    note: 'Día de empuje. Pecho completo y tríceps desde el suelo — sin impacto.',
     exercises: PECHO_TRICEPS
   },
   {
-    label: 'Vie', name: 'Viernes',
+    label: 'Mié', name: 'Miércoles',
     focus: 'Espalda · Bíceps',
-    note: 'Segunda sesión de tirón. Busca el fallo muscular en las últimas series.',
+    note: 'Día de tirón. Espalda completa y bíceps con remos y curls.',
     exercises: ESPALDA_BICEPS
   },
   {
-    label: 'Sáb', name: 'Sábado',
+    label: 'Jue', name: 'Jueves',
     focus: 'Piernas · Trapecio · Antebrazos',
     note: 'Tren inferior completo + trapecio y agarre. Cargas máximas.',
-    exercises: [
-      {
-        name: 'Sentadilla frontal con barra', sets: '4×10 · 30 kg', badge: 'Piernas',
-        muscles: 'Cuádriceps · Glúteos · Core',
-        steps: [
-          'Barra apoyada en los deltoides frontales, codos altos. Pies a anchura de hombros.',
-          'Baja controlado hasta muslos paralelos al suelo. Torso completamente erguido.',
-          'Sube empujando el suelo sin inclinar el torso. Rodillas en línea con los pies.'
-        ]
-      },
-      {
-        name: 'Peso muerto con barra', sets: '4×5 · 40 kg', badge: 'Global',
-        muscles: 'Isquiotibiales · Glúteos · Erector espinal',
-        steps: [
-          'Barra frente a las espinillas. Agarre firme a anchura de caderas, espalda recta.',
-          'Empuja el suelo con los pies y extiende caderas. Barra pegada al cuerpo.',
-          'Baja controlado. Resetea posición entre reps si es necesario.'
-        ]
-      },
-      {
-        name: 'Hip thrust con barra', sets: '4×12 · 30 kg', badge: 'Glúteos',
-        muscles: 'Glúteo mayor y medio · Isquiotibiales',
-        steps: [
-          'Espalda apoyada en el sofá o cama, barra sobre caderas (con toalla).',
-          'Pies planos a anchura de caderas. Empuja las caderas hacia arriba.',
-          'Aprieta glúteos en la cima 1 seg. Baja controlado.'
-        ]
-      },
-      {
-        name: 'Zancada estática con mancuernas', sets: '3×10 c/lado · 15 kg c/u', badge: 'Piernas',
-        muscles: 'Glúteos · Cuádriceps · Isquiotibiales',
-        steps: [
-          'Posición de zancada fija. Mancuernas a los lados del cuerpo.',
-          'Baja la rodilla trasera hacia el suelo lentamente (3 seg).',
-          'Sube empujando con el pie delantero. Sin desplazarte. Cambia de pierna.'
-        ]
-      },
-      {
-        name: 'Encogimientos con barra', sets: '4×15 · 35 kg', badge: 'Trapecio',
-        muscles: 'Trapecio superior · Elevador de la escápula',
-        steps: [
-          'De pie, barra frente a los muslos con agarre prono a anchura de hombros.',
-          'Encoge los hombros hacia las orejas lo más arriba posible. Sin doblar los codos.',
-          'Baja lento en 2 seg. No gires los hombros — movimiento puramente vertical.'
-        ]
-      },
-      {
-        name: 'Curl de muñeca con barra', sets: '3×20 · 10 kg', badge: 'Antebrazos',
-        muscles: 'Flexores del antebrazo · Pronador redondo',
-        steps: [
-          'Sentado, antebrazo apoyado en el muslo con la barra en supinación (palma arriba).',
-          'Relaja la muñeca dejando caer la barra hacia abajo controlado.',
-          'Flexiona la muñeca subiendo la barra lo más alto posible. Pausa arriba.'
-        ]
-      },
-      {
-        name: 'Extensión de muñeca con barra', sets: '3×20 · 10 kg', badge: 'Antebrazos',
-        muscles: 'Extensores del antebrazo · Ancóneo',
-        steps: [
-          'Sentado, antebrazo apoyado en el muslo con la barra en pronación (palma abajo).',
-          'Deja caer la barra hacia abajo relajando la muñeca.',
-          'Extiende la muñeca subiendo el dorso de la mano lo más posible. Movimiento puro.'
-        ]
-      }
-    ]
+    exercises: PIERNAS_TRAPECIO_ANTEBRAZOS
+  },
+  {
+    label: 'Vie', name: 'Viernes',
+    focus: 'Pecho · Tríceps',
+    note: 'Segunda sesión de empuje. Aumenta el peso respecto al martes si puedes.',
+    exercises: PECHO_TRICEPS
+  },
+  {
+    label: 'Sáb', name: 'Sábado',
+    focus: 'Espalda · Bíceps',
+    note: 'Segunda sesión de tirón. Busca el fallo muscular en las últimas series.',
+    exercises: ESPALDA_BICEPS
   },
   {
     label: 'Dom', name: 'Domingo',
