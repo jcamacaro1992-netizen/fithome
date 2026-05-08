@@ -355,26 +355,39 @@ function TabHoy() {
 
 // ─── SEMANA tab ───────────────────────────────────────────────────────────────
 function TabSemana() {
+  const [openDay,   setOpenDay]   = useState(null)
   const [openGuide, setOpenGuide] = useState(null)
   const todayIdx = todayDayIdx()
 
   return (
-    <div style={{ padding: '12px 12px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <div style={{ padding: '12px 12px 20px', display: 'flex', flexDirection: 'column', gap: 6 }}>
 
-      {/* Week grid */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {DAYS.map((day, dIdx) => {
-          const plan    = DAY_PLAN[dIdx]
-          const t       = MACRO_TARGETS[plan.type]
-          const isToday = dIdx === todayIdx
-          const isDom   = dIdx === 6
-          return (
-            <div key={dIdx} style={{
-              background: 'var(--card)',
-              border: `1px solid ${isToday ? `${t.color}40` : 'var(--border)'}`,
-              borderRadius: 'var(--r2)', padding: '10px 14px',
-              display: 'flex', alignItems: 'center', gap: 10
-            }}>
+      {/* Week grid — each day is expandable */}
+      {DAYS.map((day, dIdx) => {
+        const plan    = DAY_PLAN[dIdx]
+        const t       = MACRO_TARGETS[plan.type]
+        const isToday = dIdx === todayIdx
+        const isDom   = dIdx === 6
+        const isOpen  = openDay === dIdx
+        const meals   = getMealsForDay(dIdx)
+        const totalKcal = meals.reduce((a, m) => a + m.macros.kcal, 0)
+
+        return (
+          <div key={dIdx} style={{
+            background: 'var(--card)',
+            border: `1px solid ${isToday ? `${t.color}40` : isOpen ? `${t.color}25` : 'var(--border)'}`,
+            borderRadius: 'var(--r2)', overflow: 'hidden',
+            transition: 'border-color 0.2s'
+          }}>
+            {/* Header row — clickable */}
+            <button
+              onClick={() => setOpenDay(isOpen ? null : dIdx)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center',
+                gap: 10, padding: '10px 14px',
+                background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left'
+              }}
+            >
               <div style={{
                 width: 34, height: 34, borderRadius: 10, flexShrink: 0,
                 background: `${t.color}15`, border: `1px solid ${t.color}30`,
@@ -403,7 +416,7 @@ function TabSemana() {
                   )}
                 </div>
                 {!isDom && plan.lunch && (
-                  <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 2, display: 'flex', gap: 6 }}>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 2, display: 'flex', gap: 5 }}>
                     <span style={{ color: '#F59E0B', fontWeight: 600 }}>{LUNCH_LABEL[plan.lunch]}</span>
                     <span>·</span>
                     <span>Cena {plan.dinner}</span>
@@ -414,23 +427,115 @@ function TabSemana() {
                 )}
               </div>
 
-              <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <div style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 700, fontSize: '0.95rem', color: t.color
-                }}>{isDom ? '—' : t.kcal}</div>
-                {!isDom && <div style={{ fontSize: '0.64rem', color: 'var(--muted)' }}>kcal</div>}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700, fontSize: '0.95rem', color: t.color
+                  }}>{isDom ? '—' : totalKcal}</div>
+                  {!isDom && <div style={{ fontSize: '0.62rem', color: 'var(--muted)' }}>kcal</div>}
+                </div>
+                {!isDom && (
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+                    style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+                    <path d="M3 5l4 4 4-4" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
               </div>
-            </div>
-          )
-        })}
-      </div>
+            </button>
+
+            {/* Expanded meal list */}
+            {isOpen && !isDom && (
+              <div style={{ borderTop: '1px solid var(--border)' }}>
+                {meals.map((meal, mIdx) => (
+                  <div key={meal.id} style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '9px 14px',
+                    borderTop: mIdx > 0 ? '1px solid var(--border)' : 'none',
+                    background: mIdx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)'
+                  }}>
+                    <span style={{ fontSize: '1.2rem', lineHeight: 1, flexShrink: 0, width: 26, textAlign: 'center' }}>
+                      {meal.icon}
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontFamily: "'Barlow Condensed', sans-serif",
+                        fontWeight: 700, fontSize: '0.82rem', color: 'var(--text)', lineHeight: 1,
+                        display: 'flex', alignItems: 'center', gap: 5
+                      }}>
+                        {meal.label}
+                        <span style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: 400 }}>{meal.time}</span>
+                        {meal.mealPrep && (
+                          <span style={{
+                            fontSize: '0.55rem', fontWeight: 700,
+                            color: '#F59E0B', background: 'rgba(245,158,11,0.1)',
+                            border: '1px solid rgba(245,158,11,0.2)',
+                            borderRadius: 3, padding: '1px 4px'
+                          }}>PREP</span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--muted)', marginTop: 1 }}>
+                        {meal.name}
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                        {[
+                          { val: meal.macros.protein, label: 'P', color: '#4589FF' },
+                          { val: meal.macros.carbs,   label: 'C', color: '#F59E0B' },
+                          { val: meal.macros.fat,     label: 'G', color: '#A78BFA' },
+                        ].map(m => (
+                          <span key={m.label} style={{ fontSize: '0.66rem', color: m.color, fontWeight: 600 }}>
+                            {m.label} {m.val}g
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{
+                        fontFamily: "'Barlow Condensed', sans-serif",
+                        fontWeight: 700, fontSize: '0.88rem', color: t.color
+                      }}>{meal.macros.kcal}</div>
+                      <div style={{ fontSize: '0.62rem', color: 'var(--muted)' }}>kcal</div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Day total footer */}
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '8px 14px',
+                  borderTop: '1px solid var(--border)',
+                  background: `${t.color}08`
+                }}>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 600 }}>
+                    {meals.length} comidas
+                  </span>
+                  <div style={{ display: 'flex', gap: 14 }}>
+                    {[
+                      { label: 'P', val: meals.reduce((a,m)=>a+m.macros.protein,0), color:'#4589FF' },
+                      { label: 'C', val: meals.reduce((a,m)=>a+m.macros.carbs,0),   color:'#F59E0B' },
+                      { label: 'G', val: meals.reduce((a,m)=>a+m.macros.fat,0),     color:'#A78BFA' },
+                    ].map(m => (
+                      <span key={m.label} style={{ fontSize: '0.72rem', color: m.color, fontWeight: 700 }}>
+                        {m.label} {m.val}g
+                      </span>
+                    ))}
+                    <span style={{
+                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontWeight: 800, fontSize: '0.82rem', color: t.color
+                    }}>{totalKcal} kcal</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })}
 
       {/* Meal prep legend */}
       <div style={{
         background: 'var(--card)', border: '1px solid rgba(245,158,11,0.2)',
         borderRadius: 'var(--r2)', padding: '10px 14px',
-        display: 'flex', gap: 10, alignItems: 'center'
+        display: 'flex', gap: 10, alignItems: 'center', marginTop: 4
       }}>
         <span style={{ fontSize: '1.2rem' }}>🍱</span>
         <div style={{ flex: 1 }}>
