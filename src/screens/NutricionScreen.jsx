@@ -338,6 +338,9 @@ function TabSemana() {
   const [openGuide, setOpenGuide] = useState(null)
   const todayIdx = todayDayIdx()
 
+  const { profile, tenant } = useApp()
+  const { eatenIds, toggleMeal } = useNutritionLog(profile?.id, tenant?.id)
+
   return (
     <div style={{ padding: '12px 12px 20px', display: 'flex', flexDirection: 'column', gap: 6 }}>
 
@@ -423,67 +426,24 @@ function TabSemana() {
               </div>
             </button>
 
-            {/* Expanded meal list */}
+            {/* Expanded meal list — full MealCard detail */}
             {isOpen && !isDom && (
-              <div style={{ borderTop: '1px solid var(--border)' }}>
-                {meals.map((meal, mIdx) => (
-                  <div key={meal.id} style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '9px 14px',
-                    borderTop: mIdx > 0 ? '1px solid var(--border)' : 'none',
-                    background: mIdx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)'
-                  }}>
-                    <span style={{ fontSize: '1.2rem', lineHeight: 1, flexShrink: 0, width: 26, textAlign: 'center' }}>
-                      {meal.icon}
-                    </span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{
-                        fontFamily: "'Barlow Condensed', sans-serif",
-                        fontWeight: 700, fontSize: '0.82rem', color: 'var(--text)', lineHeight: 1,
-                        display: 'flex', alignItems: 'center', gap: 5
-                      }}>
-                        {meal.label}
-                        <span style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: 400 }}>{meal.time}</span>
-                        {meal.mealPrep && (
-                          <span style={{
-                            fontSize: '0.55rem', fontWeight: 700,
-                            color: '#F59E0B', background: 'rgba(245,158,11,0.1)',
-                            border: '1px solid rgba(245,158,11,0.2)',
-                            borderRadius: 3, padding: '1px 4px'
-                          }}>PREP</span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '0.74rem', color: 'var(--muted)', marginTop: 1 }}>
-                        {meal.name}
-                      </div>
-                      <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-                        {[
-                          { val: meal.macros.protein, label: 'P', color: '#4589FF' },
-                          { val: meal.macros.carbs,   label: 'C', color: '#F59E0B' },
-                          { val: meal.macros.fat,     label: 'G', color: '#A78BFA' },
-                        ].map(m => (
-                          <span key={m.label} style={{ fontSize: '0.66rem', color: m.color, fontWeight: 600 }}>
-                            {m.label} {m.val}g
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{
-                        fontFamily: "'Barlow Condensed', sans-serif",
-                        fontWeight: 700, fontSize: '0.88rem', color: t.color
-                      }}>{meal.macros.kcal}</div>
-                      <div style={{ fontSize: '0.62rem', color: 'var(--muted)' }}>kcal</div>
-                    </div>
-                  </div>
+              <div style={{ borderTop: '1px solid var(--border)', padding: '8px 8px 4px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {meals.map(meal => (
+                  <MealCard
+                    key={meal.id}
+                    meal={meal}
+                    eaten={isToday ? eatenIds.includes(meal.id) : false}
+                    onToggle={isToday ? toggleMeal : () => {}}
+                  />
                 ))}
 
                 {/* Day total footer */}
                 <div style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '8px 14px',
+                  padding: '8px 6px 4px',
                   borderTop: '1px solid var(--border)',
-                  background: `${t.color}08`
+                  marginTop: 2
                 }}>
                   <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 600 }}>
                     {meals.length} comidas
