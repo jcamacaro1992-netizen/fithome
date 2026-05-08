@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { useApp } from '../contexts/AppContext'
 import { useProgress } from '../hooks/useProgress'
 import { DAYS } from '../data/exercises'
 
@@ -50,9 +52,14 @@ function Row({ icon, label, value, chevron }) {
   )
 }
 
+const ROLE_LABEL = { owner: 'Propietario', admin: 'Administrador', member: 'Miembro' }
+const ROLE_COLOR = { owner: '#F59E0B', admin: '#4589FF', member: 'var(--muted)' }
+
 export default function ConfigScreen() {
   const { user, signOut } = useAuth()
+  const { profile, tenant, isAdmin, planLabel, planColor } = useApp()
   const { clearToday } = useProgress(user)
+  const navigate = useNavigate()
 
   const [googleKey, setGoogleKey] = useState('')
   const [googleSaved, setGoogleSaved] = useState(false)
@@ -117,24 +124,80 @@ export default function ConfigScreen() {
 
         {/* ── Cuenta ── */}
         <Section title="Cuenta">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
             <div style={{
-              width: 40, height: 40, borderRadius: '50%',
+              width: 44, height: 44, borderRadius: '50%',
               background: 'var(--accent-dim)', border: '1px solid var(--accent-glow)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
             }}>
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <svg width="20" height="20" viewBox="0 0 18 18" fill="none">
                 <circle cx="9" cy="7" r="3.5" stroke="var(--accent)" strokeWidth="1.5"/>
                 <path d="M2.5 16c0-3.314 2.91-6 6.5-6s6.5 2.686 6.5 6" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
-            <div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text)' }}>
-                {user?.email ?? 'Usuario'}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {profile?.name || user?.email || 'Usuario'}
               </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--success)', marginTop: '2px' }}>● Sesión activa</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {profile?.name ? user?.email : ''}
+              </div>
             </div>
+            {profile?.role && (
+              <span style={{
+                fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.04em',
+                color: ROLE_COLOR[profile.role],
+                background: `${ROLE_COLOR[profile.role]}18`,
+                border: `1px solid ${ROLE_COLOR[profile.role]}30`,
+                borderRadius: 6, padding: '3px 8px', flexShrink: 0
+              }}>
+                {ROLE_LABEL[profile.role]}
+              </span>
+            )}
           </div>
+
+          {tenant && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 16px', borderBottom: '1px solid var(--border)' }}>
+              <span style={{ fontSize: '0.86rem', color: 'var(--text)', fontWeight: 500 }}>Espacio de trabajo</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{tenant.name}</span>
+                <span style={{
+                  fontSize: '0.66rem', fontWeight: 700,
+                  color: planColor, background: `${planColor}18`,
+                  border: `1px solid ${planColor}30`,
+                  borderRadius: 5, padding: '2px 7px'
+                }}>{planLabel}</span>
+              </div>
+            </div>
+          )}
+
+          {isAdmin && (
+            <button
+              onClick={() => navigate('/admin')}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center',
+                gap: '12px', padding: '13px 16px',
+                background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left'
+              }}
+            >
+              <div style={{
+                width: 32, height: 32, borderRadius: '9px', flexShrink: 0,
+                background: 'var(--accent-dim)', border: '1px solid var(--accent-glow)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <path d="M7.5 1L9.3 5h4.2l-3.4 2.5 1.3 4L7.5 9 3.6 11.5l1.3-4L1.5 5h4.2z"
+                    stroke="var(--accent)" strokeWidth="1.3" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <span style={{ flex: 1, fontSize: '0.9rem', color: 'var(--accent)', fontWeight: 600 }}>
+                Panel de administración
+              </span>
+              <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ opacity: 0.4 }}>
+                <path d="M1 1L6 6L1 11" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
         </Section>
 
         {/* ── Videos ── */}

@@ -4,29 +4,13 @@ import {
   MACRO_TARGETS, DAY_PLAN, LUNCH_LABEL,
   getMealsForDay, WATER_GLASSES, MEAL_PREP_GUIDE, SHOPPING_LIST
 } from '../data/nutrition'
+import { useApp } from '../contexts/AppContext'
+import { useNutritionLog, useShoppingList } from '../hooks/useNutritionLog'
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 const JS_DAY_TO_IDX = [6, 0, 1, 2, 3, 4, 5]
 
 function todayDayIdx() { return JS_DAY_TO_IDX[new Date().getDay()] }
-
-function todayKey() {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
-function useLocalState(key, initial) {
-  const [val, setVal] = useState(() => {
-    try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : initial }
-    catch { return initial }
-  })
-  function set(next) {
-    const v = typeof next === 'function' ? next(val) : next
-    setVal(v)
-    localStorage.setItem(key, JSON.stringify(v))
-  }
-  return [val, set]
-}
 
 // ─── macro bar ───────────────────────────────────────────────────────────────
 function MacroBar({ label, eaten, target, unit, color }) {
@@ -244,15 +228,10 @@ function TabHoy() {
   const type    = plan.type
   const targets = MACRO_TARGETS[type]
   const meals   = getMealsForDay(dayIdx)
-  const dateKey = todayKey()
   const isDom   = dayIdx === 6
 
-  const [eatenIds, setEatenIds] = useLocalState(`fithome_meals_${dateKey}`, [])
-  const [glasses,  setGlasses]  = useLocalState(`fithome_water_${dateKey}`, 0)
-
-  function toggleMeal(id) {
-    setEatenIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
-  }
+  const { profile, tenant } = useApp()
+  const { eatenIds, glasses, toggleMeal, setWater } = useNutritionLog(profile?.id, tenant?.id)
 
   const eaten = useMemo(() => meals
     .filter(m => eatenIds.includes(m.id))
@@ -315,7 +294,7 @@ function TabHoy() {
       )}
 
       {/* Water */}
-      <WaterTracker glasses={glasses} setGlasses={setGlasses} />
+      <WaterTracker glasses={glasses} setGlasses={setWater} />
 
       {/* Meals or rest message */}
       {isDom ? (
@@ -638,11 +617,8 @@ function TabSemana() {
 
 // ─── COMPRAS tab ──────────────────────────────────────────────────────────────
 function TabCompras() {
-  const [checked, setChecked] = useLocalState('fithome_shopping', [])
-
-  function toggle(id) {
-    setChecked(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
-  }
+  const { profile, tenant } = useApp()
+  const { checked, toggle, clearAll } = useShoppingList(profile?.id, tenant?.id)
 
   const totalItems   = SHOPPING_LIST.reduce((a, c) => a + c.items.length, 0)
   const checkedCount = checked.length
@@ -659,7 +635,7 @@ function TabCompras() {
         </div>
         {checkedCount > 0 && (
           <button
-            onClick={() => setChecked([])}
+            onClick={clearAll}
             style={{
               background: 'transparent', border: '1px solid var(--border)',
               borderRadius: 8, padding: '5px 10px',

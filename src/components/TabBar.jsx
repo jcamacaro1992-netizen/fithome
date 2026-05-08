@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useApp } from '../contexts/AppContext'
 
 const TABS = [
   {
@@ -69,6 +70,7 @@ const TABS = [
 export default function TabBar() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { isAdmin } = useApp()
 
   return (
     <div style={{
@@ -102,6 +104,14 @@ export default function TabBar() {
             )}
             <div style={{ position: 'relative', zIndex: 1 }}>
               {tab.icon(active)}
+              {tab.path === '/config' && isAdmin && (
+                <div style={{
+                  position: 'absolute', top: -2, right: -2,
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: 'var(--accent)',
+                  border: '1.5px solid var(--bg2)'
+                }} />
+              )}
             </div>
             <span style={{
               fontSize: '0.62rem',
