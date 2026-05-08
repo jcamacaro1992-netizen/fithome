@@ -1,16 +1,14 @@
 import { useState, useMemo } from 'react'
 import { DAYS } from '../data/exercises'
 import {
-  DAY_TYPE, MACRO_TARGETS, MEAL_PLANS,
-  WATER_GLASSES, MEAL_PREP_GUIDE, SHOPPING_LIST
+  MACRO_TARGETS, DAY_PLAN, LUNCH_LABEL,
+  getMealsForDay, WATER_GLASSES, MEAL_PREP_GUIDE, SHOPPING_LIST
 } from '../data/nutrition'
 
-// ─── helpers ────────────────────────────────────────────────────────────────
-const JS_DAY_TO_IDX = [6, 0, 1, 2, 3, 4, 5] // Sun=0 → DAYS[6]
+// ─── helpers ─────────────────────────────────────────────────────────────────
+const JS_DAY_TO_IDX = [6, 0, 1, 2, 3, 4, 5]
 
-function todayDayIdx() {
-  return JS_DAY_TO_IDX[new Date().getDay()]
-}
+function todayDayIdx() { return JS_DAY_TO_IDX[new Date().getDay()] }
 
 function todayKey() {
   const d = new Date()
@@ -19,10 +17,8 @@ function todayKey() {
 
 function useLocalState(key, initial) {
   const [val, setVal] = useState(() => {
-    try {
-      const raw = localStorage.getItem(key)
-      return raw ? JSON.parse(raw) : initial
-    } catch { return initial }
+    try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : initial }
+    catch { return initial }
   })
   function set(next) {
     const v = typeof next === 'function' ? next(val) : next
@@ -62,11 +58,8 @@ function MealCard({ meal, eaten, onToggle }) {
     <div style={{
       background: 'var(--card)',
       border: `1px solid ${eaten ? 'rgba(31,209,106,0.25)' : 'var(--border)'}`,
-      borderRadius: 'var(--r2)',
-      overflow: 'hidden',
-      transition: 'border-color 0.2s'
+      borderRadius: 'var(--r2)', overflow: 'hidden', transition: 'border-color 0.2s'
     }}>
-      {/* Header row */}
       <button
         onClick={() => setOpen(o => !o)}
         style={{
@@ -101,9 +94,7 @@ function MealCard({ meal, eaten, onToggle }) {
             fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 700, fontSize: '0.82rem',
             color: eaten ? 'var(--success)' : 'var(--muted)'
-          }}>
-            {meal.macros.kcal} kcal
-          </span>
+          }}>{meal.macros.kcal} kcal</span>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
             style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>
             <path d="M3 5l4 4 4-4" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -111,29 +102,27 @@ function MealCard({ meal, eaten, onToggle }) {
         </div>
       </button>
 
-      {/* Expanded content */}
       {open && (
         <div style={{ borderTop: '1px solid var(--border)', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           {/* Macro pills */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {[
-              { label: 'Proteína', val: meal.macros.protein, unit: 'g', color: '#4589FF' },
-              { label: 'Carbos', val: meal.macros.carbs, unit: 'g', color: '#F59E0B' },
-              { label: 'Grasa', val: meal.macros.fat, unit: 'g', color: '#A78BFA' },
+              { label: 'Proteína', val: meal.macros.protein, color: '#4589FF' },
+              { label: 'Carbos',   val: meal.macros.carbs,   color: '#F59E0B' },
+              { label: 'Grasa',    val: meal.macros.fat,     color: '#A78BFA' },
             ].map(m => (
               <div key={m.label} style={{
                 background: `${m.color}15`, border: `1px solid ${m.color}30`,
                 borderRadius: 6, padding: '3px 8px',
                 display: 'flex', alignItems: 'center', gap: 4
               }}>
-                <span style={{ fontSize: '0.68rem', color: m.color, fontWeight: 700 }}>{m.val}{m.unit}</span>
+                <span style={{ fontSize: '0.68rem', color: m.color, fontWeight: 700 }}>{m.val}g</span>
                 <span style={{ fontSize: '0.65rem', color: 'var(--muted)' }}>{m.label}</span>
               </div>
             ))}
             <div style={{
               background: 'rgba(141,163,190,0.08)', border: '1px solid var(--border)',
-              borderRadius: 6, padding: '3px 8px',
-              display: 'flex', alignItems: 'center', gap: 4
+              borderRadius: 6, padding: '3px 8px'
             }}>
               <span style={{ fontSize: '0.68rem', color: 'var(--muted)', fontWeight: 700 }}>⏱ {meal.prepTime} min</span>
             </div>
@@ -156,7 +145,7 @@ function MealCard({ meal, eaten, onToggle }) {
             </div>
           </div>
 
-          {/* Prep steps */}
+          {/* Steps */}
           <div>
             <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 }}>
               Preparación
@@ -175,7 +164,7 @@ function MealCard({ meal, eaten, onToggle }) {
             </div>
           </div>
 
-          {/* Mark eaten button */}
+          {/* Mark eaten */}
           <button
             onClick={() => onToggle(meal.id)}
             style={{
@@ -205,7 +194,7 @@ function MealCard({ meal, eaten, onToggle }) {
   )
 }
 
-// ─── water tracker ───────────────────────────────────────────────────────────
+// ─── water tracker ────────────────────────────────────────────────────────────
 function WaterTracker({ glasses, setGlasses }) {
   return (
     <div style={{
@@ -213,10 +202,7 @@ function WaterTracker({ glasses, setGlasses }) {
       borderRadius: 'var(--r2)', padding: '12px 14px'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-        <span style={{
-          fontFamily: "'Barlow Condensed', sans-serif",
-          fontWeight: 700, fontSize: '0.88rem', color: 'var(--text)'
-        }}>Agua</span>
+        <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.88rem', color: 'var(--text)' }}>Agua</span>
         <span style={{ fontSize: '0.76rem', color: 'var(--muted)' }}>
           {glasses}/{WATER_GLASSES} vasos · {glasses * 250} ml
         </span>
@@ -254,33 +240,29 @@ function WaterTracker({ glasses, setGlasses }) {
 // ─── HOY tab ─────────────────────────────────────────────────────────────────
 function TabHoy() {
   const dayIdx  = todayDayIdx()
-  const day     = DAYS[dayIdx]
-  const type    = DAY_TYPE[day.focus] ?? 'training'
+  const plan    = DAY_PLAN[dayIdx]
+  const type    = plan.type
   const targets = MACRO_TARGETS[type]
-  const meals   = MEAL_PLANS[type]
+  const meals   = getMealsForDay(dayIdx)
   const dateKey = todayKey()
+  const isDom   = dayIdx === 6
 
   const [eatenIds, setEatenIds] = useLocalState(`fithome_meals_${dateKey}`, [])
   const [glasses,  setGlasses]  = useLocalState(`fithome_water_${dateKey}`, 0)
 
   function toggleMeal(id) {
-    setEatenIds(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    )
+    setEatenIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   }
 
-  const eaten = useMemo(() => {
-    const eatenMeals = meals.filter(m => eatenIds.includes(m.id))
-    return eatenMeals.reduce(
-      (acc, m) => ({
-        kcal: acc.kcal + m.macros.kcal,
-        protein: acc.protein + m.macros.protein,
-        carbs: acc.carbs + m.macros.carbs,
-        fat: acc.fat + m.macros.fat,
-      }),
-      { kcal: 0, protein: 0, carbs: 0, fat: 0 }
-    )
-  }, [eatenIds, meals])
+  const eaten = useMemo(() => meals
+    .filter(m => eatenIds.includes(m.id))
+    .reduce((acc, m) => ({
+      kcal:    acc.kcal    + m.macros.kcal,
+      protein: acc.protein + m.macros.protein,
+      carbs:   acc.carbs   + m.macros.carbs,
+      fat:     acc.fat     + m.macros.fat,
+    }), { kcal: 0, protein: 0, carbs: 0, fat: 0 }),
+  [eatenIds, meals])
 
   return (
     <div style={{ padding: '12px 12px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -292,16 +274,20 @@ function TabHoy() {
         borderRadius: 'var(--r2)', padding: '12px 14px',
         display: 'flex', alignItems: 'flex-start', gap: 10
       }}>
-        <div style={{
-          width: 4, borderRadius: 99, alignSelf: 'stretch',
-          background: targets.color, flexShrink: 0
-        }} />
+        <div style={{ width: 4, borderRadius: 99, alignSelf: 'stretch', background: targets.color, flexShrink: 0 }} />
         <div style={{ flex: 1 }}>
           <div style={{
             fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 800, fontSize: '1rem', color: targets.color, lineHeight: 1
           }}>{targets.label.toUpperCase()}</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: 4, lineHeight: 1.4 }}>
+          {plan.lunch && (
+            <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 3 }}>
+              Almuerzo: <span style={{ color: '#F59E0B', fontWeight: 600 }}>{LUNCH_LABEL[plan.lunch]}</span>
+              {'  ·  '}
+              Cena: <span style={{ color: targets.color, fontWeight: 600 }}>Menú {plan.dinner}</span>
+            </div>
+          )}
+          <div style={{ fontSize: '0.74rem', color: 'var(--muted)', marginTop: 4, lineHeight: 1.4 }}>
             {targets.note}
           </div>
         </div>
@@ -315,35 +301,54 @@ function TabHoy() {
       </div>
 
       {/* Macro summary */}
-      <div style={{
-        background: 'var(--card)', border: '1px solid var(--border)',
-        borderRadius: 'var(--r2)', padding: '12px 14px',
-        display: 'flex', flexDirection: 'column', gap: 8
-      }}>
-        <MacroBar label="Calorías" eaten={eaten.kcal} target={targets.kcal} unit=" kcal" color={targets.color} />
-        <MacroBar label="Proteína" eaten={eaten.protein} target={targets.protein} unit="g" color="#4589FF" />
-        <MacroBar label="Carbos"   eaten={eaten.carbs}   target={targets.carbs}   unit="g" color="#F59E0B" />
-        <MacroBar label="Grasa"    eaten={eaten.fat}      target={targets.fat}     unit="g" color="#A78BFA" />
-      </div>
+      {!isDom && (
+        <div style={{
+          background: 'var(--card)', border: '1px solid var(--border)',
+          borderRadius: 'var(--r2)', padding: '12px 14px',
+          display: 'flex', flexDirection: 'column', gap: 8
+        }}>
+          <MacroBar label="Calorías" eaten={eaten.kcal}    target={targets.kcal}    unit=" kcal" color={targets.color} />
+          <MacroBar label="Proteína" eaten={eaten.protein} target={targets.protein} unit="g"     color="#4589FF" />
+          <MacroBar label="Carbos"   eaten={eaten.carbs}   target={targets.carbs}   unit="g"     color="#F59E0B" />
+          <MacroBar label="Grasa"    eaten={eaten.fat}     target={targets.fat}     unit="g"     color="#A78BFA" />
+        </div>
+      )}
 
-      {/* Water tracker */}
+      {/* Water */}
       <WaterTracker glasses={glasses} setGlasses={setGlasses} />
 
-      {/* Meals */}
-      <p style={{
-        fontFamily: "'Barlow Condensed', sans-serif",
-        fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.07em',
-        textTransform: 'uppercase', color: 'var(--muted)', margin: '2px 0 0'
-      }}>COMIDAS DEL DÍA</p>
-
-      {meals.map(meal => (
-        <MealCard
-          key={meal.id}
-          meal={meal}
-          eaten={eatenIds.includes(meal.id)}
-          onToggle={toggleMeal}
-        />
-      ))}
+      {/* Meals or rest message */}
+      {isDom ? (
+        <div style={{
+          background: 'var(--card)', border: '1px solid var(--border)',
+          borderRadius: 'var(--r2)', padding: '20px 16px', textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '2rem', marginBottom: 8 }}>😴</div>
+          <div style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 700, fontSize: '1rem', color: '#A78BFA', marginBottom: 4
+          }}>DÍA DE DESCANSO TOTAL</div>
+          <div style={{ fontSize: '0.78rem', color: 'var(--muted)', lineHeight: 1.5 }}>
+            Come ligero, hidratación máxima y descansa bien. Mañana empieza la nueva semana.
+          </div>
+        </div>
+      ) : (
+        <>
+          <p style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.07em',
+            textTransform: 'uppercase', color: 'var(--muted)', margin: '2px 0 0'
+          }}>COMIDAS DEL DÍA</p>
+          {meals.map(meal => (
+            <MealCard
+              key={meal.id}
+              meal={meal}
+              eaten={eatenIds.includes(meal.id)}
+              onToggle={toggleMeal}
+            />
+          ))}
+        </>
+      )}
     </div>
   )
 }
@@ -359,21 +364,20 @@ function TabSemana() {
       {/* Week grid */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {DAYS.map((day, dIdx) => {
-          const type = DAY_TYPE[day.focus] ?? 'training'
-          const t    = MACRO_TARGETS[type]
+          const plan    = DAY_PLAN[dIdx]
+          const t       = MACRO_TARGETS[plan.type]
           const isToday = dIdx === todayIdx
+          const isDom   = dIdx === 6
           return (
             <div key={dIdx} style={{
               background: 'var(--card)',
               border: `1px solid ${isToday ? `${t.color}40` : 'var(--border)'}`,
-              borderRadius: 'var(--r2)',
-              padding: '10px 14px',
+              borderRadius: 'var(--r2)', padding: '10px 14px',
               display: 'flex', alignItems: 'center', gap: 10
             }}>
               <div style={{
                 width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                background: `${t.color}15`,
-                border: `1px solid ${t.color}30`,
+                background: `${t.color}15`, border: `1px solid ${t.color}30`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
                 <span style={{
@@ -381,10 +385,12 @@ function TabSemana() {
                   fontWeight: 800, fontSize: '0.8rem', color: t.color
                 }}>{day.label}</span>
               </div>
-              <div style={{ flex: 1 }}>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
                   fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)', lineHeight: 1
+                  fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)', lineHeight: 1,
+                  display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap'
                 }}>
                   {t.label}
                   {isToday && (
@@ -392,32 +398,57 @@ function TabSemana() {
                       fontSize: '0.6rem', fontWeight: 700,
                       color: 'var(--accent)', background: 'rgba(198,241,53,0.1)',
                       border: '1px solid rgba(198,241,53,0.25)',
-                      borderRadius: 4, padding: '1px 5px', marginLeft: 6, verticalAlign: 'middle'
+                      borderRadius: 4, padding: '1px 5px'
                     }}>HOY</span>
                   )}
                 </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 2 }}>
-                  {day.focus}
-                </div>
+                {!isDom && plan.lunch && (
+                  <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 2, display: 'flex', gap: 6 }}>
+                    <span style={{ color: '#F59E0B', fontWeight: 600 }}>{LUNCH_LABEL[plan.lunch]}</span>
+                    <span>·</span>
+                    <span>Cena {plan.dinner}</span>
+                  </div>
+                )}
+                {isDom && (
+                  <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 2 }}>Descanso · Sin meal prep</div>
+                )}
               </div>
+
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <div style={{
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 700, fontSize: '0.95rem', color: t.color
-                }}>{t.kcal}</div>
-                <div style={{ fontSize: '0.64rem', color: 'var(--muted)' }}>kcal</div>
+                }}>{isDom ? '—' : t.kcal}</div>
+                {!isDom && <div style={{ fontSize: '0.64rem', color: 'var(--muted)' }}>kcal</div>}
               </div>
             </div>
           )
         })}
       </div>
 
+      {/* Meal prep legend */}
+      <div style={{
+        background: 'var(--card)', border: '1px solid rgba(245,158,11,0.2)',
+        borderRadius: 'var(--r2)', padding: '10px 14px',
+        display: 'flex', gap: 10, alignItems: 'center'
+      }}>
+        <span style={{ fontSize: '1.2rem' }}>🍱</span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.82rem', color: '#F59E0B' }}>
+            PLAN MEAL PREP SEMANAL
+          </div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 2 }}>
+            Arroz (Lun·Mar) · Puré (Mié·Jue) · Pasta (Vie·Sáb)
+          </div>
+        </div>
+      </div>
+
       {/* Meal prep guides */}
       <p style={{
         fontFamily: "'Barlow Condensed', sans-serif",
         fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.07em',
-        textTransform: 'uppercase', color: 'var(--muted)', margin: '4px 0 0'
-      }}>MEAL PREP SEMANAL</p>
+        textTransform: 'uppercase', color: 'var(--muted)', margin: '2px 0 0'
+      }}>GUÍAS DE PREPARACIÓN</p>
 
       {MEAL_PREP_GUIDE.map(guide => {
         const isOpen = openGuide === guide.id
@@ -453,15 +484,15 @@ function TabSemana() {
                 <path d="M3 5l4 4 4-4" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
+
             {isOpen && (
               <div style={{ borderTop: '1px solid var(--border)', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div style={{
                   fontSize: '0.73rem', color: '#F59E0B',
                   background: 'rgba(245,158,11,0.08)', borderRadius: 6, padding: '5px 9px',
                   display: 'inline-block'
-                }}>
-                  📅 Usar en: {guide.usedOn}
-                </div>
+                }}>📅 Usar en: {guide.usedOn}</div>
+
                 <div>
                   <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 5 }}>
                     Ingredientes (×{guide.serves})
@@ -475,6 +506,7 @@ function TabSemana() {
                     </div>
                   ))}
                 </div>
+
                 <div>
                   <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 5 }}>
                     Pasos
@@ -499,7 +531,7 @@ function TabSemana() {
   )
 }
 
-// ─── COMPRAS tab ─────────────────────────────────────────────────────────────
+// ─── COMPRAS tab ──────────────────────────────────────────────────────────────
 function TabCompras() {
   const [checked, setChecked] = useLocalState('fithome_shopping', [])
 
@@ -507,43 +539,32 @@ function TabCompras() {
     setChecked(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   }
 
-  function clearAll() { setChecked([]) }
-
-  const totalItems  = SHOPPING_LIST.reduce((a, c) => a + c.items.length, 0)
+  const totalItems   = SHOPPING_LIST.reduce((a, c) => a + c.items.length, 0)
   const checkedCount = checked.length
 
   return (
     <div style={{ padding: '12px 12px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-      {/* Header row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <span style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 700, fontSize: '0.88rem', color: 'var(--text)'
-          }}>
+          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '0.88rem', color: 'var(--text)' }}>
             {checkedCount}/{totalItems} artículos
           </span>
-          <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 1 }}>
-            Lista de compra semanal
-          </div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 1 }}>Lista de compra semanal</div>
         </div>
         {checkedCount > 0 && (
           <button
-            onClick={clearAll}
+            onClick={() => setChecked([])}
             style={{
               background: 'transparent', border: '1px solid var(--border)',
               borderRadius: 8, padding: '5px 10px',
               color: 'var(--muted)', fontSize: '0.72rem', cursor: 'pointer',
               fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700
             }}
-          >
-            LIMPIAR
-          </button>
+          >LIMPIAR</button>
         )}
       </div>
 
-      {/* Progress bar */}
       <div style={{ height: 4, borderRadius: 99, background: 'var(--border2)' }}>
         <div style={{
           height: '100%', borderRadius: 99,
@@ -553,16 +574,13 @@ function TabCompras() {
         }} />
       </div>
 
-      {/* Category groups */}
       {SHOPPING_LIST.map(cat => (
         <div key={cat.category} style={{
           background: 'var(--card)', border: '1px solid var(--border)',
           borderRadius: 'var(--r2)', overflow: 'hidden'
         }}>
-          {/* Category header */}
           <div style={{
-            padding: '8px 14px',
-            background: `${cat.color}0A`,
+            padding: '8px 14px', background: `${cat.color}0A`,
             borderBottom: '1px solid var(--border)',
             display: 'flex', alignItems: 'center', gap: 6
           }}>
@@ -577,7 +595,6 @@ function TabCompras() {
             </span>
           </div>
 
-          {/* Items */}
           <div style={{ padding: '4px 0' }}>
             {cat.items.map((item, idx) => {
               const done = checked.includes(item.id)
@@ -608,7 +625,8 @@ function TabCompras() {
                     )}
                   </div>
                   <span style={{
-                    flex: 1, fontSize: '0.82rem', color: done ? 'var(--muted)' : 'var(--text)',
+                    flex: 1, fontSize: '0.82rem',
+                    color: done ? 'var(--muted)' : 'var(--text)',
                     textDecoration: done ? 'line-through' : 'none',
                     textDecorationColor: 'var(--muted)', fontWeight: 500
                   }}>{item.item}</span>
@@ -638,7 +656,6 @@ export default function NutricionScreen() {
 
   return (
     <div className="screen">
-      {/* Sticky header */}
       <div style={{
         padding: '16px 16px 0',
         borderBottom: '1px solid var(--border)',
@@ -647,14 +664,10 @@ export default function NutricionScreen() {
         <h1 style={{
           fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 800, fontSize: '1.6rem',
-          letterSpacing: '0.03em', color: 'var(--text)', lineHeight: 1,
-          marginBottom: 12
-        }}>
-          NUTRICIÓN
-        </h1>
+          letterSpacing: '0.03em', color: 'var(--text)', lineHeight: 1, marginBottom: 12
+        }}>NUTRICIÓN</h1>
 
-        {/* Internal tab bar */}
-        <div style={{ display: 'flex', gap: 0 }}>
+        <div style={{ display: 'flex' }}>
           {TABS.map(tab => {
             const active = activeTab === tab.id
             return (
@@ -662,7 +675,8 @@ export default function NutricionScreen() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 style={{
-                  flex: 1, padding: '8px 0', background: 'transparent', border: 'none',
+                  flex: 1, padding: '8px 0',
+                  background: 'transparent', border: 'none',
                   borderBottom: `2px solid ${active ? 'var(--accent)' : 'transparent'}`,
                   color: active ? 'var(--accent)' : 'var(--muted)',
                   fontFamily: "'Barlow Condensed', sans-serif",
