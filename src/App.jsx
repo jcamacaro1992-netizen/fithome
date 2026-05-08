@@ -6,6 +6,7 @@ import HomeScreen from './screens/HomeScreen'
 import WeekScreen from './screens/WeekScreen'
 import ZonasScreen from './screens/ZonasScreen'
 import ConfigScreen from './screens/ConfigScreen'
+import NutricionScreen from './screens/NutricionScreen'
 import DetailScreen from './screens/DetailScreen'
 import LoginScreen from './screens/LoginScreen'
 import OnboardingScreen from './screens/OnboardingScreen'
@@ -18,6 +19,7 @@ function ProtectedLayout() {
         <Route path="/semana" element={<WeekScreen />} />
         <Route path="/zonas" element={<ZonasScreen />} />
         <Route path="/config" element={<ConfigScreen />} />
+        <Route path="/nutricion" element={<NutricionScreen />} />
         <Route path="/ejercicio/:dayIdx/:exIdx" element={<DetailScreen />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

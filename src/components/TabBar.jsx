@@ -39,6 +39,20 @@ const TABS = [
     )
   },
   {
+    path: '/nutricion',
+    label: 'Nutrición',
+    icon: (active) => (
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M11 3C7.5 3 5 6 5 9c0 4 3 6 4 9h4c1-3 4-5 4-9 0-3-2.5-6-6-6z"
+          stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.65" strokeLinejoin="round"/>
+        <path d="M8.5 13.5h5M9 16h4"
+          stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M11 3v3M8.5 5.5L11 7M13.5 5.5L11 7"
+          stroke={active ? '#fff' : 'rgba(141,163,190,0.7)'} strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    )
+  },
+  {
     path: '/config',
     label: 'Ajustes',
     icon: (active) => (
